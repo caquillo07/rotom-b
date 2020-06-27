@@ -1,6 +1,0 @@
-discord:
-  token: "token"
-  playingStatus: "Lurking inside all dens"
-
-bot:
-  prefix: "%"
