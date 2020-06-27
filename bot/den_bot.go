@@ -95,6 +95,10 @@ func (b *Bot) handleMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if err := handlePongCmd(s, m); err != nil {
 			logger.Error("failed to respond to ping command", zap.Error(err))
 		}
+	case "den":
+		if err := handleDenCmd(s, m); err != nil {
+			logger.Error("failed to respond to ping command", zap.Error(err))
+		}
 	default:
 		// ignoring unknown commands
 	}
