@@ -88,7 +88,7 @@ func (b *Bot) handleMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 	logger := zap.L()
 	switch command {
 	case "ping":
-		if err := handlePingCmd(s, m); err != nil {
+		if err := b.handlePingCmd(s, m); err != nil {
 			logger.Error("failed to respond to ping command", zap.Error(err))
 		}
 	case "pong":
