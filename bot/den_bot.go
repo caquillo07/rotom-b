@@ -13,8 +13,9 @@ import (
 )
 
 type Bot struct {
-	config  conf.Config
-	session *discordgo.Session
+	config      conf.Config
+	session     *discordgo.Session
+	pokemonRepo *pokemonRepo
 }
 
 func NewBot(conf conf.Config, session *discordgo.Session) *Bot {
@@ -25,29 +26,36 @@ func NewBot(conf conf.Config, session *discordgo.Session) *Bot {
 }
 
 func (b *Bot) Run() error {
-    logger := zap.L()
+	logger := zap.L()
 
-    // Register ready as a callback for the ready events.
-    b.session.AddHandler(b.ready)
+	// Initialize the repo
+	repo, err := newPokemonRepo()
+	if err != nil {
+		return err
+	}
+	b.pokemonRepo = repo
 
-    // Register the handleMessage func as a callback for MessageCreate events.
-    b.session.AddHandler(b.handleMessage)
+	// Register ready as a callback for the ready events.
+	b.session.AddHandler(b.ready)
 
-    // Open a websocket connection to Discord and begin listening.
-    if err := b.session.Open(); err != nil {
-        logger.Error("error opening connection", zap.Error(err))
-        return err
-    }
+	// Register the handleMessage func as a callback for MessageCreate events.
+	b.session.AddHandler(b.handleMessage)
 
-    // Wait here until CTRL-C or other term signal is received.
-    logger.Info("Bot is now running.  Press CTRL-C to exit.")
-    sc := make(chan os.Signal, 1)
-    signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
-    <-sc
+	// Open a websocket connection to Discord and begin listening.
+	if err := b.session.Open(); err != nil {
+		logger.Error("error opening connection", zap.Error(err))
+		return err
+	}
 
-    // Cleanly close down the Discord session.
+	// Wait here until CTRL-C or other term signal is received.
+	logger.Info("Bot is now running.  Press CTRL-C to exit.")
+	sc := make(chan os.Signal, 1)
+	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
+	<-sc
+
+	// Cleanly close down the Discord session.
 	logger.Info("Shutting down...")
-    return b.session.Close()
+	return b.session.Close()
 }
 
 // This function will be called (due to AddHandler above) when the bot receives
@@ -91,5 +99,3 @@ func (b *Bot) handleMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 		// ignoring unknown commands
 	}
 }
-
-
