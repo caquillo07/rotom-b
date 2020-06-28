@@ -16,7 +16,8 @@ type Config struct {
 	}
 
 	Bot struct {
-		Prefix string
+		Prefix     string
+		EmbedColor int
 	}
 }
 
@@ -40,6 +41,7 @@ func InitViper(configFile string) {
 
 	// Default settings
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+	viper.AutomaticEnv() // read in environment variables that match
 	if err := viper.ReadInConfig(); err != nil {
 		log.Fatal(err)
 	}

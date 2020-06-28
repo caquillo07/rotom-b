@@ -1,9 +1,11 @@
 package bot
 
 import (
+	"fmt"
 	"os"
 	"os/signal"
 	"strings"
+	"sync/atomic"
 	"syscall"
 
 	"github.com/bwmarrin/discordgo"
@@ -13,15 +15,18 @@ import (
 )
 
 type Bot struct {
-	config      conf.Config
-	session     *discordgo.Session
-	pokemonRepo *pokemonRepo
+	config         conf.Config
+	session        *discordgo.Session
+	pokemonRepo    *pokemonRepo
+	commands       map[string]*command
+	requestsServed uint64
 }
 
 func NewBot(conf conf.Config, session *discordgo.Session) *Bot {
 	return &Bot{
-		config:  conf,
-		session: session,
+		config:   conf,
+		session:  session,
+		commands: make(map[string]*command),
 	}
 }
 
@@ -34,6 +39,9 @@ func (b *Bot) Run() error {
 		return err
 	}
 	b.pokemonRepo = repo
+
+	// Create all the commands on the bot
+	b.initCommands()
 
 	// Register ready as a callback for the ready events.
 	b.session.AddHandler(b.ready)
@@ -50,7 +58,7 @@ func (b *Bot) Run() error {
 	// Wait here until CTRL-C or other term signal is received.
 	logger.Info("Bot is now running.  Press CTRL-C to exit.")
 	sc := make(chan os.Signal, 1)
-	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
+	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	<-sc
 
 	// Cleanly close down the Discord session.
@@ -73,8 +81,9 @@ func (b *Bot) ready(s *discordgo.Session, event *discordgo.Ready) {
 // message is created on any channel that the authenticated bot has access to.
 func (b *Bot) handleMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 
-	// Ignore all messages created by the bot itself
-	if m.Author.ID == s.State.User.ID {
+	// Ignore all messages created by the bot itself, or any other bot for that
+	// matter
+	if m.Author.ID == s.State.User.ID || m.Author.Bot {
 		return
 	}
 
@@ -82,24 +91,57 @@ func (b *Bot) handleMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if !strings.HasPrefix(m.Content, b.config.Bot.Prefix) {
 		return
 	}
+	logger := zap.L()
+	channel, err := s.State.Channel(m.ChannelID)
+	if err != nil {
+		logger.Error("error retrieving the channel", zap.Error(err))
+		return
+	}
+	// Update the requests served, so we can get new ID for the next request
+	reqID := atomic.AddUint64(&b.requestsServed, 1)
+	logger.Info(
+		"processing command",
+		zap.Uint64("request_id", reqID),
+		zap.String("command", m.Content),
+		zap.String("user", m.Author.Username),
+		zap.String("channel", channel.Name),
+	)
 
 	// To not have to check for the prefix on every single command
-	command := strings.TrimPrefix(m.Content, b.config.Bot.Prefix)
-	logger := zap.L()
-	switch command {
-	case "ping":
-		if err := b.handlePingCmd(s, m); err != nil {
-			logger.Error("failed to respond to ping command", zap.Error(err))
-		}
-	case "pong":
-		if err := handlePongCmd(s, m); err != nil {
-			logger.Error("failed to respond to ping command", zap.Error(err))
-		}
-	case "den":
-		if err := b.handleDenCmd(s, m); err != nil {
-			logger.Error("failed to respond to den command", zap.Error(err))
-		}
-	default:
+	cleanedMsg := strings.TrimPrefix(m.Content, b.config.Bot.Prefix)
+	cmdParts := strings.Split(cleanedMsg, " ")
+	botCmd, ok := b.commands[cmdParts[0]]
+	if !ok {
 		// ignoring unknown commands
+		return
 	}
+
+	// Send this off on its own go routine to be able to handle many of them
+	// at once
+	go func(reqID uint64) {
+		env := &commandEnvironment{
+			command: cmdParts[0],
+			args:    cmdParts[1:],
+		}
+		if err := botCmd.execute(s, env, m.Message); err != nil {
+			logger.Error(
+				"failed to handle command",
+				zap.String("command", cleanedMsg),
+				zap.Uint64("request_id", reqID),
+				zap.Error(err),
+			)
+			_, err := s.ChannelMessageSend(
+				m.ChannelID,
+				fmt.Sprintf("```Whoops, there was an error processing the request with ID \"%d\"```", reqID),
+			)
+
+			// If this errors, then ¯\_(ツ)_/¯ log and move on
+			if err != nil {
+				logger.Error(
+					"failed to communicate command error",
+					zap.Error(err),
+				)
+			}
+		}
+	}(reqID)
 }

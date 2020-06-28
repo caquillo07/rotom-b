@@ -1,24 +1,30 @@
 package bot
 
 import (
-	"github.com/bwmarrin/discordgo"
 	"fmt"
-	"strings"
+
+	"github.com/bwmarrin/discordgo"
 )
 
-func (b *Bot) handleDenCmd(s *discordgo.Session, m *discordgo.MessageCreate) error {
+func (b *Bot) handleDenCmd(
+	s *discordgo.Session,
+	env *commandEnvironment,
+	m *discordgo.Message,
+) error {
 
-	messageArgs := strings.Split(m.Content, " ") 
-	fmt.Printf("%s", messageArgs)
+	fmt.Printf("%s", env.args)
 
 	denData, err := b.pokemonRepo.den("1")
+	if err != nil {
+		return err
+	}
 
 	swordField := &discordgo.MessageEmbedField{}
 	swordField.Inline = true
 	swordField.Name += "HA in Sword"
 	for i := 0; i < len(denData.Sword); i++ {
 		if denData.Sword[i].Ability != "Standard" {
-			swordField.Value += denData.Sword[i].Name + "\n"; 
+			swordField.Value += denData.Sword[i].Name + "\n"
 		}
 	}
 
@@ -27,7 +33,7 @@ func (b *Bot) handleDenCmd(s *discordgo.Session, m *discordgo.MessageCreate) err
 	shieldField.Name += "HA in Shield"
 	for i := 0; i < len(denData.Shield); i++ {
 		if denData.Shield[i].Ability != "Standard" {
-			shieldField.Value += denData.Shield[i].Name + "\n"; 
+			shieldField.Value += denData.Shield[i].Name + "\n"
 		}
 	}
 
@@ -45,6 +51,6 @@ func (b *Bot) handleDenCmd(s *discordgo.Session, m *discordgo.MessageCreate) err
 
 	fmt.Printf("%+v\n\n", msgEmbed)
 
-    _, err = s.ChannelMessageSendEmbed(m.ChannelID, &msgEmbed)
-    return err
+	_, err = s.ChannelMessageSendEmbed(m.ChannelID, &msgEmbed)
+	return err
 }

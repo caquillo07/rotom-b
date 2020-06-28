@@ -1,0 +1,19 @@
+# configuration from discord, required to get the bot working
+# in the server.
+discord:
+  token: "your-token"
+  # status the bot will display on its user profile
+  playingStatys: "Lurking in every channel!"
+
+# bot configuration
+bot:
+  # the prefix to be used for commands. This is what the bot
+  # will use to filter out commands from normal messages
+  prefix: "%"
+  # color of the border on the embed message sent by the bots, in hex format.
+  # https://www.w3schools.com/colors/colors_picker.asp can be used to find hex
+  # color values.
+  #
+  # This value defaults to "0" if left blank, which is the hex value of black
+  # (0x000000)
+  embedColor: 0xb3ecff
