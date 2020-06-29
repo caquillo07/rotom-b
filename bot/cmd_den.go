@@ -42,7 +42,7 @@ func (b *Bot) handleDenCmd(
 	msgImage := discordgo.MessageEmbedImage{}
 	msgImage.URL = "https://caquillo07.github.io/data/dens/den_1.png"
 
-	msgEmbed := discordgo.MessageEmbed{}
+	msgEmbed := b.newEmbed()
 	msgEmbed.URL = "https://www.serebii.net/swordshield/maxraidbattles/den1.shtml"
 	msgEmbed.Title = "Pokémon found in Den " + "1" + ":"
 	msgEmbed.Image = &msgImage
@@ -51,6 +51,6 @@ func (b *Bot) handleDenCmd(
 
 	fmt.Printf("%+v\n\n", msgEmbed)
 
-	_, err = s.ChannelMessageSendEmbed(m.ChannelID, &msgEmbed)
+	_, err = s.ChannelMessageSendEmbed(m.ChannelID, msgEmbed)
 	return err
 }

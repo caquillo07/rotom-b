@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
@@ -12,7 +13,6 @@ type command struct {
 	usage     string
 	example   string
 	adminOnly bool
-	// requiredPermission int
 }
 
 type commandEnvironment struct {
@@ -51,4 +51,12 @@ func (b *Bot) newEmbed() *discordgo.MessageEmbed {
 			IconURL: "https://images-na.ssl-images-amazon.com/images/I/41x0Y9yJYKL.jpg",
 		},
 	}
+}
+
+func (b *Bot) newErrorEmbedf(errorTitle, errorMsg string, a ...interface{}) *discordgo.MessageEmbed {
+	embed := b.newEmbed()
+	embed.Title = errorTitle
+	embed.Description = fmt.Sprintf(errorMsg, a...)
+	embed.Color = b.config.Bot.ErrorEmbedColor
+	return embed
 }

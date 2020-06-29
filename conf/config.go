@@ -16,8 +16,9 @@ type Config struct {
 	}
 
 	Bot struct {
-		Prefix     string
-		EmbedColor int
+		Prefix          string
+		EmbedColor      int
+		ErrorEmbedColor int
 	}
 }
 

@@ -1,7 +1,6 @@
 package bot
 
 import (
-	"fmt"
 	"os"
 	"os/signal"
 	"strings"
@@ -130,9 +129,13 @@ func (b *Bot) handleMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 				zap.Uint64("request_id", reqID),
 				zap.Error(err),
 			)
-			_, err := s.ChannelMessageSend(
+			_, err := s.ChannelMessageSendEmbed(
 				m.ChannelID,
-				fmt.Sprintf("```Whoops, there was an error processing the request with ID \"%d\"```", reqID),
+				b.newErrorEmbedf(
+					"Internal Error",
+					`Whoops, there was an error processing the request with ID **%d**`,
+					reqID,
+				),
 			)
 
 			// If this errors, then ¯\_(ツ)_/¯ log and move on
