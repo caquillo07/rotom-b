@@ -35,6 +35,13 @@ func (b *Bot) initCommands() {
 		example:   b.addCmdPrefix("{{p}}den 22\n{{p}}den charizard"),
 		adminOnly: false,
 	}
+	b.commands["ball"] = &command{
+		execute:   b.handleBallCmd,
+		helpText:  "Shows a summary of a Poké-Ball’s statistics",
+		usage:     b.addCmdPrefix("{{p}}ball <ball_name>"),
+		example:   b.addCmdPrefix("{{p}}ball beast"),
+		adminOnly: false,
+	}
 }
 
 // addCmdPrefix replaces all cases of {{p}} with the actual

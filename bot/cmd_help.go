@@ -35,7 +35,7 @@ func (b *Bot) handleHelpCmd(
 		commandFields[i] = &discordgo.MessageEmbedField{
 			Name:   cmd.usage,
 			Value:  cmd.helpText,
-			Inline: true,
+			Inline: false,
 		}
 	}
 
