@@ -17,3 +17,9 @@ bot:
   # This value defaults to "0" if left blank, which is the hex value of black
   # (0x000000)
   embedColor: 0xb3ecff
+  # color of the border on the error embed messages sent by the bots, in hex
+  # format.
+  #
+  # This value defaults to "0" if left blank, which is the hex value of black
+  # (0x000000)
+  errorEmbedColor: 0xb40000
