@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"fmt"
 	"os"
 	"os/signal"
 	"strings"
@@ -133,7 +134,7 @@ func (b *Bot) handleMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 			// If the error is a botError, that means that we will consider
 			// it public and just pass the error on to the user.
 			errTitle := "Internal Error"
-			errDetails := `Whoops, there was an error processing the request with ID **%d**`
+			errDetails := fmt.Sprintf(`Whoops, there was an error processing the request with ID **%d**`, reqID)
 			if publicErr, ok := err.(botError); ok {
 				errTitle, errDetails = publicErr.title, publicErr.details
 			}
