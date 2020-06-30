@@ -52,7 +52,8 @@ func (b *Bot) handleBallCmd(
 		**Ball Conditions:** %s
 		`,
 		ball.Effect,
-		fmt.Sprintf(modFormatter, ball.Modifier), // this is confusing, but it works
+		// this is confusing, but it works
+		fmt.Sprintf(modFormatter, ball.Modifier),
 		ball.Conditions,
 	)
 

@@ -129,14 +129,15 @@ func (b *Bot) handleMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 				zap.Uint64("request_id", reqID),
 				zap.Error(err),
 			)
-			_, err := s.ChannelMessageSendEmbed(
-				m.ChannelID,
-				b.newErrorEmbedf(
-					"Internal Error",
-					`Whoops, there was an error processing the request with ID **%d**`,
-					reqID,
-				),
-			)
+
+			// If the error is a botError, that means that we will consider
+			// it public and just pass the error on to the user.
+			errTitle := "Internal Error"
+			errDetails := `Whoops, there was an error processing the request with ID **%d**`
+			if publicErr, ok := err.(botError); ok {
+				errTitle, errDetails = publicErr.title, publicErr.details
+			}
+			_, err := s.ChannelMessageSendEmbed(m.ChannelID, b.newErrorEmbedf(errTitle, errDetails))
 
 			// If this errors, then ¯\_(ツ)_/¯ log and move on
 			if err != nil {

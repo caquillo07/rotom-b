@@ -42,6 +42,13 @@ func (b *Bot) initCommands() {
 		example:   b.addCmdPrefix("{{p}}ball beast"),
 		adminOnly: false,
 	}
+	b.commands["catch"] = &command{
+		execute:   b.handleCatchCmd,
+		helpText:  "Shows a detailed summary of catch rates for a given Pokémon and Ball combination.",
+		usage:     b.addCmdPrefix("{{p}}catch <pokemon> [form] [ball_name]"),
+		example:   b.addCmdPrefix("{{p}}catch charizard gmax lux"),
+		adminOnly: false,
+	}
 }
 
 // addCmdPrefix replaces all cases of {{p}} with the actual
