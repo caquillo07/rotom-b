@@ -68,7 +68,7 @@ func (b *Bot) newEmbed() *discordgo.MessageEmbed {
 	return &discordgo.MessageEmbed{
 		Color: b.config.Bot.EmbedColor,
 		Footer: &discordgo.MessageEmbedFooter{
-			Text:    "Rotom-B - By Hector & Milla - Modified by Lewymd",
+			Text:    "Rotom-B - By Hector & Milla",
 			IconURL: "https://images-na.ssl-images-amazon.com/images/I/41x0Y9yJYKL.jpg",
 		},
 	}
