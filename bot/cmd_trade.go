@@ -1,4 +1,5 @@
-// added by Lewymd, if it breaks it's his fault
+//todo requested by Hector - add Lewymd to contributors list
+//added by Lewymd, if it breaks it's his fault
 
 package bot
 
