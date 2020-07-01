@@ -20,6 +20,28 @@ type Config struct {
 		EmbedColor      int
 		ErrorEmbedColor int
 	}
+	TradeCodes struct {
+		TradeDesc		string
+		Code			string
+		TradeDesc2		string
+		Code2			string
+		TradeDesc3		string
+		Code3			string	
+		TradeDesc4		string
+		Code4			string
+		TradeDesc5		string
+		Code5			string
+		TradeDesc6		string
+		Code6			string
+		TradeDesc7		string
+		Code7			string
+		TradeDesc8		string
+		Code8			string
+		TradeDesc9		string
+		Code9			string
+		TradeDesc10		string
+		Code10			string
+	}
 }
 
 // LoadConfig loads configuration from the viper instance.

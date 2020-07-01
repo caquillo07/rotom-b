@@ -3,7 +3,7 @@
 discord:
   token: "your-token"
   # status the bot will display on its user profile
-  playingStatys: "Lurking in every channel!"
+  playingStatus: "Lurking in every channel!"
 
 # bot configuration
 bot:
@@ -23,3 +23,24 @@ bot:
   # This value defaults to "0" if left blank, which is the hex value of black
   # (0x000000)
   errorEmbedColor: 0xb40000
+tradeCodes:
+  #the first five listed here are already widely used but can be changed/removed
+  #to add more create copy a current tradeDesc & Code and increment the numbers.
+  #currently limited to max of 10 codes
+  
+  #Description for trade
+  tradeDesc: "Ditto"
+  # the link trade code assigned to that trade
+  code: "4448 4448"
+  
+  tradeDesc2: "Version Exclusives"
+  code2: "2211 2211"
+
+  tradeDesc3: "Breedject Trades"
+  code3: "1337 1337"
+  
+  tradeDesc4: "Shiny Trades"
+  code4: "0000 0777"
+  
+  tradeDesc5: "Trades of Pokemon requiring trades to evolve"
+  code5: "1234 4321"

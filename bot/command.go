@@ -49,6 +49,13 @@ func (b *Bot) initCommands() {
 		example:   b.addCmdPrefix("{{p}}catch charizard gmax lux"),
 		adminOnly: false,
 	}
+	b.commands["trade"] = &command{
+		execute:   b.handleTradeCmd,
+		helpText:  "Shows a list of global trade codes.",
+		usage:     b.addCmdPrefix("{{p}}trade"),
+		example:   b.addCmdPrefix("{{p}}trade"),
+		adminOnly: false,
+	}
 }
 
 // addCmdPrefix replaces all cases of {{p}} with the actual
