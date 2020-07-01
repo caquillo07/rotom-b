@@ -49,6 +49,13 @@ func (b *Bot) initCommands() {
 		example:   b.addCmdPrefix("{{p}}catch charizard gmax lux"),
 		adminOnly: false,
 	}
+	b.commands["trade"] = &command{
+		execute:   b.handleTradeCmd,
+		helpText:  "Shows a list of global trade codes.",
+		usage:     b.addCmdPrefix("{{p}}trade"),
+		example:   b.addCmdPrefix("{{p}}trade"),
+		adminOnly: false,
+	}
 }
 
 // addCmdPrefix replaces all cases of {{p}} with the actual
@@ -61,7 +68,7 @@ func (b *Bot) newEmbed() *discordgo.MessageEmbed {
 	return &discordgo.MessageEmbed{
 		Color: b.config.Bot.EmbedColor,
 		Footer: &discordgo.MessageEmbedFooter{
-			Text:    "Rotom-B - By Hector & Milla",
+			Text:    "Rotom-B - By Hector & Milla - Modified by Lewymd",
 			IconURL: "https://images-na.ssl-images-amazon.com/images/I/41x0Y9yJYKL.jpg",
 		},
 	}
