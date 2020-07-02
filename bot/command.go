@@ -56,6 +56,13 @@ func (b *Bot) initCommands() {
 		example:   b.addCmdPrefix("{{p}}credits"),
 		adminOnly: false,
 	}
+	b.commands["nature"] = &command{
+		execute:   b.handleNatureCmd,
+		helpText:  "Shows info regarding Pokémon Natures.",
+		usage:     b.addCmdPrefix("{{p}}nature <nature>"),
+		example:   b.addCmdPrefix("{{p}}nature modest"),
+		adminOnly: false,
+	}
 }
 
 // addCmdPrefix replaces all cases of {{p}} with the actual
