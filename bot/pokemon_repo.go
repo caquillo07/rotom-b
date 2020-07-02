@@ -3,6 +3,7 @@ package bot
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -123,6 +124,36 @@ func newPokemonRepo() (*pokemonRepo, error) {
 	}, nil
 }
 
+func (p *pokemon) isGigantamax() bool {
+	for _, f := range p.Forms {
+		if f == "Gigantamax" {
+			return true
+		}
+	}
+	return false
+}
+
+// spriteImage returns the URL for the sprite of the pokemon
+//
+// todo(hector) I hate this, I cant wait to get rid of it
+func (p *pokemon) spriteImage(shiny bool, form string) string {
+	fileName := strings.ToLower(p.Name)
+	fileType := "normal"
+	if shiny {
+		fileType = "shiny"
+	}
+
+	if form != "" {
+		fileName = fmt.Sprintf("%s-%s", fileName, strings.ToLower(form))
+	}
+
+	return fmt.Sprintf(
+		"https://raphgg.github.io/den-bot/data/sprites/pokemon/%s/%s.gif",
+		fileType,
+		fileName,
+	)
+}
+
 // den will try to find the given den, if it does not exist it
 // will return a `errDenDoesNotExist` error
 func (r *pokemonRepo) den(denNumber string) (*den, error) {
@@ -135,7 +166,7 @@ func (r *pokemonRepo) den(denNumber string) (*den, error) {
 // ball will try to find the given ball, if it does not exist it
 // will return a `errBallDoesNotExist` error
 func (r *pokemonRepo) ball(ball string) (*pokeBall, error) {
-	if b, ok := r.balls[ball]; ok {
+	if b, ok := r.balls[strings.ToLower(ball)]; ok {
 		return b, nil
 	}
 	return nil, errBallDoesNotExist
@@ -144,7 +175,7 @@ func (r *pokemonRepo) ball(ball string) (*pokeBall, error) {
 // pokemon will try to find the given pokemon, if it does not exist it
 // will return a `errBallDoesNotExist` error
 func (r *pokemonRepo) pokemon(name string) (*pokemon, error) {
-	if p, ok := r.pokemons[name]; ok {
+	if p, ok := r.pokemons[strings.ToLower(name)]; ok {
 		return p, nil
 	}
 	return nil, errPokemonDoesNotExist
