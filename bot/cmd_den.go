@@ -39,15 +39,17 @@ func (b *Bot) getDensFromPokemon(pkmnName string) (*discordgo.MessageEmbed, erro
 
 	embed := b.newEmbed()
 	embed.Title = pokemon.Name + " is in the following Dens:"
-	embed.Thumbnail = &discordgo.MessageEmbedThumbnail{
+	embed.Image = &discordgo.MessageEmbedImage{
 		URL: fmt.Sprintf(
 			"https://raphgg.github.io/den-bot/data/sprites/pokemon/normal/%s.gif",
 			strings.ToLower(strings.ReplaceAll(pokemon.Name, " ", "")),
 		),
+		Width:  300,
+		Height: 300,
 	}
 
 	swordField := &discordgo.MessageEmbedField{}
-	swordField.Inline = false
+	swordField.Inline = true
 	swordField.Name += "*Sword:* "
 	for i := 0; i < len(pokemon.Dens.Sword); i++ {
 		if i == len(pokemon.Dens.Sword)-1 {
@@ -66,19 +68,19 @@ func (b *Bot) getDensFromPokemon(pkmnName string) (*discordgo.MessageEmbed, erro
 	}
 
 	shieldField := &discordgo.MessageEmbedField{}
-	shieldField.Inline = false
+	shieldField.Inline = true
 	shieldField.Name += "*Shield:* "
 	for i := 0; i < len(pokemon.Dens.Shield); i++ {
 		if i == len(pokemon.Dens.Shield)-1 {
 			shieldField.Value += fmt.Sprintf(
-				"[%s](https://raphgg.github.io/den-bot/data/sprites/pokemon/normal/%s.gif)",
+				"[%s](https://www.serebii.net/swordshield/maxraidbattles/den%s.shtml)",
 				strings.ToLower(pokemon.Dens.Shield[i]),
 				strings.ToLower(strings.ReplaceAll(pokemon.Name, " ", "")),
 			)
 			break
 		}
 		shieldField.Value += fmt.Sprintf(
-			"[%s](https://raphgg.github.io/den-bot/data/sprites/pokemon/normal/%s.gif), ",
+			"[%s](https://www.serebii.net/swordshield/maxraidbattles/den%s.shtml), ",
 			strings.ToLower(pokemon.Dens.Shield[i]),
 			strings.ToLower(strings.ReplaceAll(pkmnName, " ", "")),
 		)
