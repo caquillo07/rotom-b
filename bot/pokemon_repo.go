@@ -9,6 +9,12 @@ import (
 	"strings"
 )
 
+const (
+	galarian   = "galarian"
+	alolan     = "alolan"
+	gigantamax = "gigantamax"
+)
+
 var (
 	errDenDoesNotExist     = errors.New("den does not exist")
 	errBallDoesNotExist    = errors.New("ball does not exist")
@@ -124,33 +130,20 @@ func newPokemonRepo() (*pokemonRepo, error) {
 	}, nil
 }
 
-func (p *pokemon) isGigantamax() bool {
-	for _, f := range p.Forms {
-		if f == "Gigantamax" {
-			return true
-		}
-	}
-	return false
-}
-
-// spriteImage returns the URL for the sprite of the pokemon
+// spriteImage returns the URL for the sprite of the pokemon. This function
+// assumes the form is already validated and correct
 //
 // todo(hector) I hate this, I cant wait to get rid of it
 func (p *pokemon) spriteImage(shiny bool, form string) string {
-	fileName := strings.ToLower(p.Name)
 	fileType := "normal"
 	if shiny {
 		fileType = "shiny"
 	}
 
-	if form != "" {
-		fileName = fmt.Sprintf("%s-%s", fileName, strings.ToLower(form))
-	}
-
 	return fmt.Sprintf(
 		"https://raphgg.github.io/den-bot/data/sprites/pokemon/%s/%s.gif",
 		fileType,
-		fileName,
+		spriteFileName(strings.ToLower(p.Name), strings.ToLower(form)),
 	)
 }
 
@@ -166,7 +159,21 @@ func (r *pokemonRepo) den(denNumber string) (*den, error) {
 // ball will try to find the given ball, if it does not exist it
 // will return a `errBallDoesNotExist` error
 func (r *pokemonRepo) ball(ball string) (*pokeBall, error) {
-	if b, ok := r.balls[strings.ToLower(ball)]; ok {
+
+	// first clean the input a bit, we will remove all white spaces,
+	// then remove the "ball" part if present, and account for any
+	// other names the ball may go for.
+	ball = strings.ToLower(ball)
+	ball = strings.TrimSpace(ball)
+	ball = strings.ReplaceAll(ball, "ball", "")
+	switch ball {
+	case "lux":
+		ball = "luxury"
+	default:
+		// ignore
+	}
+
+	if b, ok := r.balls[ball]; ok {
 		return b, nil
 	}
 	return nil, errBallDoesNotExist
@@ -193,4 +200,65 @@ func loadJSONInto(fileLocation string, i interface{}) error {
 	}
 
 	return json.Unmarshal(densBuf, &i)
+}
+
+// I think this was a waste of time, but will leave because I spent so long
+// on it :cries:
+func getSpriteForm(form string) string {
+	// lets make it lower case to make our life's easier. If we get the full
+	// form name, just return the capitalized version of it. If we get a
+	// shorthand name, return a static string
+	f := strings.ToLower(form)
+	switch f {
+	case "galarian", "alolan", "gigantamax", "mega", "pirouette", "busted",
+		"midnight", "dusk", "hangry", "pau", "sensu", "pompom", "cosplay",
+		"primal", "blade-form", "sunny", "rainy", "snowy", "sunshine",
+		"crowned", "starter", "black", "white", "f", "dusk-mane", "dawn-wings",
+		"megay", "megax", "gorging", "gulping", "dusk-form", "zen-mode",
+		"galarian-zen":
+		return f
+	case "galar":
+		return "galarian"
+	case "alola":
+		return "Alolan"
+	case "gmax", "g-max":
+		return "gigantamax"
+	case "mega-y", "mega-x":
+		return strings.ReplaceAll(f, "-", "")
+	case "pom-pom":
+		return "pompom"
+	case "female":
+		return "f"
+	case "blade":
+		return "blade-form"
+	case "zen":
+		return "zen-mode"
+	case "galar-zen", "galar-zen-mode", "galarian-zen-mode":
+		return "galarian-zen"
+	// this cases don't have special naming for sprites, so just fall
+	// through and return
+	case "aria", "m", "male", "disguised":
+		fallthrough
+	default:
+		// nothing
+	}
+	return ""
+}
+
+// todo(hector) remove this non-sense as soon as images re-formaterd
+func spriteFileName(pkm, form string) string {
+	switch form {
+	case alolan, "crowned", "dusk", "midnight", galarian, "mega", "megay",
+		"megax", "primal":
+		return fmt.Sprintf("%s-%s", form, pkm)
+	case "":
+		return pkm
+	case "dusk-form":
+		return fmt.Sprintf("dusk-%s", pkm)
+	case "galarian-zen":
+		return fmt.Sprintf("galarian-%s-zen", pkm)
+	default:
+		// ignore
+	}
+	return fmt.Sprintf("%s-%s", pkm, form)
 }
