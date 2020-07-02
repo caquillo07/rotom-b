@@ -13,6 +13,12 @@ func (b *Bot) handleDenCmd(
 	env *commandEnvironment,
 	m *discordgo.Message,
 ) error {
+	if len(env.args) == 0 {
+		return botError{
+			title:   "Validation Error",
+			details: "Please enter a den number or a Pokémon name to look for related dens.",
+		}
+	}
 
 	var embed *discordgo.MessageEmbed
 	var err error
@@ -25,6 +31,9 @@ func (b *Bot) handleDenCmd(
 	} else {
 		embed, err = b.getDensFromPokemon(env.args[0])
 	}
+	if err != nil {
+		return err
+	}
 
 	_, err = s.ChannelMessageSendEmbed(m.ChannelID, embed)
 	return err
@@ -34,20 +43,26 @@ func (b *Bot) getDensFromPokemon(pkmnName string) (*discordgo.MessageEmbed, erro
 
 	pokemon, err := b.pokemonRepo.pokemon(strings.ToLower(pkmnName))
 	if err != nil {
-		return nil, err
+		return nil, botError{
+			title: "Pokémon not found",
+			details: fmt.Sprintf("Pokémon %s could not be found.",
+				pkmnName),
+		}
 	}
 
 	embed := b.newEmbed()
 	embed.Title = pokemon.Name + " is in the following Dens:"
-	embed.Thumbnail = &discordgo.MessageEmbedThumbnail{
+	embed.Image = &discordgo.MessageEmbedImage{
 		URL: fmt.Sprintf(
 			"https://raphgg.github.io/den-bot/data/sprites/pokemon/normal/%s.gif",
 			strings.ToLower(strings.ReplaceAll(pokemon.Name, " ", "")),
 		),
+		Width:  300,
+		Height: 300,
 	}
 
 	swordField := &discordgo.MessageEmbedField{}
-	swordField.Inline = false
+	swordField.Inline = true
 	swordField.Name += "*Sword:* "
 	for i := 0; i < len(pokemon.Dens.Sword); i++ {
 		if i == len(pokemon.Dens.Sword)-1 {
@@ -66,19 +81,19 @@ func (b *Bot) getDensFromPokemon(pkmnName string) (*discordgo.MessageEmbed, erro
 	}
 
 	shieldField := &discordgo.MessageEmbedField{}
-	shieldField.Inline = false
+	shieldField.Inline = true
 	shieldField.Name += "*Shield:* "
 	for i := 0; i < len(pokemon.Dens.Shield); i++ {
 		if i == len(pokemon.Dens.Shield)-1 {
 			shieldField.Value += fmt.Sprintf(
-				"[%s](https://raphgg.github.io/den-bot/data/sprites/pokemon/normal/%s.gif)",
+				"[%s](https://www.serebii.net/swordshield/maxraidbattles/den%s.shtml)",
 				strings.ToLower(pokemon.Dens.Shield[i]),
 				strings.ToLower(strings.ReplaceAll(pokemon.Name, " ", "")),
 			)
 			break
 		}
 		shieldField.Value += fmt.Sprintf(
-			"[%s](https://raphgg.github.io/den-bot/data/sprites/pokemon/normal/%s.gif), ",
+			"[%s](https://www.serebii.net/swordshield/maxraidbattles/den%s.shtml), ",
 			strings.ToLower(pokemon.Dens.Shield[i]),
 			strings.ToLower(strings.ReplaceAll(pkmnName, " ", "")),
 		)
@@ -92,7 +107,11 @@ func (b *Bot) getDenFromNumber(denNumber string) (*discordgo.MessageEmbed, error
 
 	den, err := b.pokemonRepo.den(denNumber)
 	if err != nil {
-		return nil, err
+		return nil, botError{
+			title: "Den number not found",
+			details: fmt.Sprintf("Den %s could not be found.",
+				denNumber),
+		}
 	}
 
 	swordField := &discordgo.MessageEmbedField{}
