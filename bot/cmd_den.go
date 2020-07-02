@@ -13,6 +13,12 @@ func (b *Bot) handleDenCmd(
 	env *commandEnvironment,
 	m *discordgo.Message,
 ) error {
+	if len(env.args) == 0 {
+		return botError{
+			title:   "Validation Error",
+			details: "Please enter a den number or a Pokémon name to look for related dens.",
+		}
+	}
 
 	var embed *discordgo.MessageEmbed
 	var err error
@@ -25,6 +31,9 @@ func (b *Bot) handleDenCmd(
 	} else {
 		embed, err = b.getDensFromPokemon(env.args[0])
 	}
+	if err != nil {
+		return err
+	}
 
 	_, err = s.ChannelMessageSendEmbed(m.ChannelID, embed)
 	return err
@@ -34,7 +43,11 @@ func (b *Bot) getDensFromPokemon(pkmnName string) (*discordgo.MessageEmbed, erro
 
 	pokemon, err := b.pokemonRepo.pokemon(strings.ToLower(pkmnName))
 	if err != nil {
-		return nil, err
+		return nil, botError{
+			title: "Pokémon not found",
+			details: fmt.Sprintf("Pokémon %s could not be found.",
+				pkmnName),
+		}
 	}
 
 	embed := b.newEmbed()
@@ -94,7 +107,11 @@ func (b *Bot) getDenFromNumber(denNumber string) (*discordgo.MessageEmbed, error
 
 	den, err := b.pokemonRepo.den(denNumber)
 	if err != nil {
-		return nil, err
+		return nil, botError{
+			title: "Den number not found",
+			details: fmt.Sprintf("Den %s could not be found.",
+				denNumber),
+		}
 	}
 
 	swordField := &discordgo.MessageEmbedField{}
