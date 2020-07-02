@@ -49,6 +49,13 @@ func (b *Bot) initCommands() {
 		example:   b.addCmdPrefix("{{p}}catch charizard gmax lux"),
 		adminOnly: false,
 	}
+	b.commands["credits"] = &command{
+		execute:   b.handleCreditsCmd,
+		helpText:  "Credits to all who helped in the creation of the bot.",
+		usage:     b.addCmdPrefix("{{p}}credits"),
+		example:   b.addCmdPrefix("{{p}}credits"),
+		adminOnly: false,
+	}
 }
 
 // addCmdPrefix replaces all cases of {{p}} with the actual
