@@ -3,7 +3,7 @@
 discord:
   token: "your-token"
   # status the bot will display on its user profile
-  playingStatus: "Lurking in every channel!"
+  playingStatys: "Lurking in every channel!"
 
 # bot configuration
 bot:

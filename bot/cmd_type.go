@@ -2,8 +2,8 @@ package bot
 
 import (
 	"fmt"
-	"github.com/bwmarrin/discordgo"
 	"strings"
+	"github.com/bwmarrin/discordgo"
 )
 
 func (b *Bot) handleTypeCmd(
@@ -20,7 +20,10 @@ func (b *Bot) handleTypeCmd(
 	}
 
 	var embed *discordgo.MessageEmbed
+	var err error
+	
 	pkmType := env.args[0]
+
 	typeInfo, err := b.pokemonRepo.pokemonType(strings.ToLower(pkmType))
 	if err != nil {
 		return botError{
@@ -30,14 +33,13 @@ func (b *Bot) handleTypeCmd(
 		}
 	}
 
-	var (
-		offensiveSuperEffective []string
-		offensiveResistant      []string
-		offensiveNoDamage       []string
-		defensiveSuperEffective []string
-		defensiveResistant      []string
-		defensiveNoDamage       []string
-	)
+	var offensiveSuperEffective []string
+	var offensiveResistant []string
+	var offensiveNoDamage []string
+
+	var defensiveSuperEffective []string
+	var defensiveResistant []string
+	var defensiveNoDamage []string
 
 	for offensiveType, num := range typeInfo.Offensive {
 		if num == 0 {
@@ -53,63 +55,76 @@ func (b *Bot) handleTypeCmd(
 
 	for defensiveType, num := range typeInfo.Defensive {
 		if num == 0 {
-			defensiveNoDamage = append(defensiveNoDamage, defensiveType)
+			defensiveNoDamage = append(defensiveNoDamage, defensiveType) 
 		}
 		if num == 0.5 {
-			defensiveResistant = append(defensiveResistant, defensiveType)
+			defensiveResistant = append(defensiveResistant, defensiveType) 
 		}
 		if num == 2 {
-			defensiveSuperEffective = append(defensiveSuperEffective, defensiveType)
+			defensiveSuperEffective = append(defensiveSuperEffective, defensiveType) 
 		}
 	}
 
-	offensiveNoDamageText := "None"
+	var offensiveNoDamageText string 
 	for i, offensiveType := range offensiveNoDamage {
-		if i == len(offensiveNoDamage)-1 {
+		if i == len(offensiveNoDamage) - 1 {
 			offensiveNoDamageText += offensiveType + "."
+			break
 		}
 		offensiveNoDamageText += offensiveType + ", "
 	}
+	if len(offensiveNoDamage) == 0 {
+		offensiveNoDamageText = "None"
+	} 
 
-	var offensiveResistantText string
+	var offensiveResistantText string 
 	for i, offensiveType := range offensiveResistant {
-		if i == len(offensiveResistant)-1 {
+		if i == len(offensiveResistant) - 1 {
 			offensiveResistantText += offensiveType + "."
+			break
 		}
 		offensiveResistantText += offensiveType + ", "
 	}
 
-	var offensiveSuperEffectiveText string
+	var offensiveSuperEffectiveText string 
 	for i, offensiveType := range offensiveSuperEffective {
-		if i == len(offensiveSuperEffective)-1 {
+		if i == len(offensiveSuperEffective) - 1 {
 			offensiveSuperEffectiveText += offensiveType + "."
+			break
 		}
 		offensiveSuperEffectiveText += offensiveType + ", "
 	}
 
-	defensiveNoDamageText := "None"
+	var defensiveNoDamageText string 
 	for i, defensiveType := range defensiveNoDamage {
-		if i == len(defensiveNoDamage)-1 {
+		if i == len(defensiveNoDamage) - 1 {
 			defensiveNoDamageText += defensiveType + "."
+			break
 		}
 		defensiveNoDamageText += defensiveType + ", "
 	}
+	if len(defensiveNoDamageText) == 0 {
+		defensiveNoDamageText = "None"
+	} 
 
-	var defensiveResistantText string
+	var defensiveResistantText string 
 	for i, defensiveType := range defensiveResistant {
-		if i == len(defensiveResistant)-1 {
+		if i == len(defensiveResistant) - 1 {
 			defensiveResistantText += defensiveType + "."
+			break
 		}
 		defensiveResistantText += defensiveType + ", "
 	}
 
-	var defensiveSuperEffectiveText string
+	var defensiveSuperEffectiveText string 
 	for i, defensiveType := range defensiveSuperEffective {
-		if i == len(defensiveSuperEffective)-1 {
+		if i == len(defensiveSuperEffective) - 1 {
 			defensiveSuperEffectiveText += defensiveType + "."
+			break
 		}
 		defensiveSuperEffectiveText += defensiveType + ", "
 	}
+
 
 	embed = b.newEmbed()
 	embed.Title = fmt.Sprintf("%s Type Info", strings.Title(pkmType))
@@ -117,8 +132,8 @@ func (b *Bot) handleTypeCmd(
 	embed.Color = typeInfo.Color
 	embed.Fields = []*discordgo.MessageEmbedField{
 		&discordgo.MessageEmbedField{
-			Name: "Offensive",
-			Value: fmt.Sprintf("Super Effective: `%s`\nResistant: `%s`\nNo Damage: `%s`",
+			Name:   "Offensive",
+			Value:  fmt.Sprintf("Super Effective: `%s`\nResistant: `%s`\nNo Damage: `%s`",
 				offensiveSuperEffectiveText,
 				offensiveResistantText,
 				offensiveNoDamageText,
@@ -126,8 +141,8 @@ func (b *Bot) handleTypeCmd(
 			Inline: false,
 		},
 		&discordgo.MessageEmbedField{
-			Name: "Defensive",
-			Value: fmt.Sprintf(
+			Name:   "Defensive",
+			Value:  fmt.Sprintf(
 				"Super Effective: `%s`\nResistant: `%s`\nNo Damage: `%s`",
 				defensiveSuperEffectiveText,
 				defensiveResistantText,
@@ -136,6 +151,8 @@ func (b *Bot) handleTypeCmd(
 			Inline: false,
 		},
 	}
+
+
 
 	_, err = s.ChannelMessageSendEmbed(m.ChannelID, embed)
 	return err
