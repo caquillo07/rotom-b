@@ -19,12 +19,14 @@ var (
 	errDenDoesNotExist     = errors.New("den does not exist")
 	errBallDoesNotExist    = errors.New("ball does not exist")
 	errPokemonDoesNotExist = errors.New("pokemon does not exist")
+	errTypeDoesNotExist    = errors.New("type does not exist")
 )
 
 type pokemonRepo struct {
 	dens     map[string]*den
 	balls    map[string]*pokeBall
 	pokemons map[string]*pokemon
+	types    map[string]*pokemonType
 }
 
 type den struct {
@@ -82,6 +84,13 @@ type pokemon struct {
 	Weight      float64  `json:"weight"`
 }
 
+type pokemonType struct {
+	Name      string             `json:"name"`
+	Offensive map[string]float64 `json:"offensive"`
+	Defensive map[string]float64 `json:"defensive"`
+	Color     int                `json:"color"`
+}
+
 // newPokemonRepo creates a new instance of the pokemonRepo
 // This method will load up the json files inside the /data
 // folder at the project's root, and create maps for quick look up.
@@ -123,10 +132,23 @@ func newPokemonRepo() (*pokemonRepo, error) {
 		lowered := strings.ToLower(pkm.Name)
 		pkmMap[lowered] = pkm
 	}
+
+	types := make([]*pokemonType, 0)
+	if err := loadJSONInto("data/types.json", &types); err != nil {
+		return nil, err
+	}
+
+	typesMap := make(map[string]*pokemonType)
+	for _, pkmType := range types {
+		lowered := strings.ToLower(pkmType.Name)
+		typesMap[lowered] = pkmType
+	}
+
 	return &pokemonRepo{
 		dens:     densMap,
 		balls:    ballsMap,
 		pokemons: pkmMap,
+		types:    typesMap,
 	}, nil
 }
 
@@ -186,6 +208,15 @@ func (r *pokemonRepo) pokemon(name string) (*pokemon, error) {
 		return p, nil
 	}
 	return nil, errPokemonDoesNotExist
+}
+
+// pokemon will try to find the given pokemon, if it does not exist it
+// will return a `errBallDoesNotExist` error
+func (r *pokemonRepo) pokemonType(name string) (*pokemonType, error) {
+	if t, ok := r.types[strings.ToLower(name)]; ok {
+		return t, nil
+	}
+	return nil, errTypeDoesNotExist
 }
 
 func loadJSONInto(fileLocation string, i interface{}) error {
