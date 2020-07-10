@@ -3,6 +3,7 @@ package bot
 import (
 	"fmt"
 	"strings"
+
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -21,7 +22,7 @@ func (b *Bot) handleTypeCmd(
 
 	var embed *discordgo.MessageEmbed
 	var err error
-	
+
 	pkmType := env.args[0]
 
 	typeInfo, err := b.pokemonRepo.pokemonType(strings.ToLower(pkmType))
@@ -33,98 +34,40 @@ func (b *Bot) handleTypeCmd(
 		}
 	}
 
-	var offensiveSuperEffective []string
-	var offensiveResistant []string
-	var offensiveNoDamage []string
-
-	var defensiveSuperEffective []string
-	var defensiveResistant []string
-	var defensiveNoDamage []string
+	offensiveMap := make(map[float64][]string)
+	defensiveMap := make(map[float64][]string)
 
 	for offensiveType, num := range typeInfo.Offensive {
 		if num == 0 {
-			offensiveNoDamage = append(offensiveNoDamage, offensiveType)
+			offensiveMap[0] = append(offensiveMap[0], offensiveType)
 		}
 		if num == 0.5 {
-			offensiveResistant = append(offensiveResistant, offensiveType)
+			offensiveMap[0.5] = append(offensiveMap[0.5], offensiveType)
 		}
 		if num == 2 {
-			offensiveSuperEffective = append(offensiveSuperEffective, offensiveType)
+			offensiveMap[2] = append(offensiveMap[2], offensiveType)
 		}
 	}
 
 	for defensiveType, num := range typeInfo.Defensive {
 		if num == 0 {
-			defensiveNoDamage = append(defensiveNoDamage, defensiveType) 
+			defensiveMap[0] = append(defensiveMap[0], defensiveType)
 		}
 		if num == 0.5 {
-			defensiveResistant = append(defensiveResistant, defensiveType) 
+			defensiveMap[0.5] = append(defensiveMap[0.5], defensiveType)
 		}
 		if num == 2 {
-			defensiveSuperEffective = append(defensiveSuperEffective, defensiveType) 
+			defensiveMap[2] = append(defensiveMap[2], defensiveType)
 		}
 	}
 
-	var offensiveNoDamageText string 
-	for i, offensiveType := range offensiveNoDamage {
-		if i == len(offensiveNoDamage) - 1 {
-			offensiveNoDamageText += offensiveType + "."
-			break
-		}
-		offensiveNoDamageText += offensiveType + ", "
-	}
-	if len(offensiveNoDamage) == 0 {
-		offensiveNoDamageText = "None"
-	} 
+	offensiveNoDamageText := b.generateTypeText(offensiveMap[0])
+	offensiveResistantText := b.generateTypeText(offensiveMap[0.5])
+	offensiveSuperEffectiveText := b.generateTypeText(offensiveMap[2])
 
-	var offensiveResistantText string 
-	for i, offensiveType := range offensiveResistant {
-		if i == len(offensiveResistant) - 1 {
-			offensiveResistantText += offensiveType + "."
-			break
-		}
-		offensiveResistantText += offensiveType + ", "
-	}
-
-	var offensiveSuperEffectiveText string 
-	for i, offensiveType := range offensiveSuperEffective {
-		if i == len(offensiveSuperEffective) - 1 {
-			offensiveSuperEffectiveText += offensiveType + "."
-			break
-		}
-		offensiveSuperEffectiveText += offensiveType + ", "
-	}
-
-	var defensiveNoDamageText string 
-	for i, defensiveType := range defensiveNoDamage {
-		if i == len(defensiveNoDamage) - 1 {
-			defensiveNoDamageText += defensiveType + "."
-			break
-		}
-		defensiveNoDamageText += defensiveType + ", "
-	}
-	if len(defensiveNoDamageText) == 0 {
-		defensiveNoDamageText = "None"
-	} 
-
-	var defensiveResistantText string 
-	for i, defensiveType := range defensiveResistant {
-		if i == len(defensiveResistant) - 1 {
-			defensiveResistantText += defensiveType + "."
-			break
-		}
-		defensiveResistantText += defensiveType + ", "
-	}
-
-	var defensiveSuperEffectiveText string 
-	for i, defensiveType := range defensiveSuperEffective {
-		if i == len(defensiveSuperEffective) - 1 {
-			defensiveSuperEffectiveText += defensiveType + "."
-			break
-		}
-		defensiveSuperEffectiveText += defensiveType + ", "
-	}
-
+	defensiveNoDamageText := b.generateTypeText(defensiveMap[0])
+	defensiveResistantText := b.generateTypeText(defensiveMap[0.5])
+	defensiveSuperEffectiveText := b.generateTypeText(defensiveMap[2])
 
 	embed = b.newEmbed()
 	embed.Title = fmt.Sprintf("%s Type Info", strings.Title(pkmType))
@@ -132,8 +75,8 @@ func (b *Bot) handleTypeCmd(
 	embed.Color = typeInfo.Color
 	embed.Fields = []*discordgo.MessageEmbedField{
 		&discordgo.MessageEmbedField{
-			Name:   "Offensive",
-			Value:  fmt.Sprintf("Super Effective: `%s`\nResistant: `%s`\nNo Damage: `%s`",
+			Name: "Offensive",
+			Value: fmt.Sprintf("Super Effective: `%s`\nResistant: `%s`\nNo Damage: `%s`",
 				offensiveSuperEffectiveText,
 				offensiveResistantText,
 				offensiveNoDamageText,
@@ -141,8 +84,8 @@ func (b *Bot) handleTypeCmd(
 			Inline: false,
 		},
 		&discordgo.MessageEmbedField{
-			Name:   "Defensive",
-			Value:  fmt.Sprintf(
+			Name: "Defensive",
+			Value: fmt.Sprintf(
 				"Super Effective: `%s`\nResistant: `%s`\nNo Damage: `%s`",
 				defensiveSuperEffectiveText,
 				defensiveResistantText,
@@ -152,9 +95,27 @@ func (b *Bot) handleTypeCmd(
 		},
 	}
 
-
-
 	_, err = s.ChannelMessageSendEmbed(m.ChannelID, embed)
 	return err
 
+}
+
+func (b *Bot) generateTypeText(typesList []string) string {
+
+	if len(typesList) == 0 {
+		typesText := "None"
+		return typesText
+	}
+
+	var typesText string
+
+	for i, typeInList := range typesList {
+		if i == len(typesList)-1 {
+			typesText += typeInList + "."
+		} else {
+			typesText += typeInList + ", "
+		}
+	}
+
+	return typesText
 }
