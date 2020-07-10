@@ -34,32 +34,8 @@ func (b *Bot) handleTypeCmd(
 		}
 	}
 
-	offensiveMap := make(map[float64][]string)
-	defensiveMap := make(map[float64][]string)
-
-	for offensiveType, num := range typeInfo.Offensive {
-		if num == 0 {
-			offensiveMap[0] = append(offensiveMap[0], offensiveType)
-		}
-		if num == 0.5 {
-			offensiveMap[0.5] = append(offensiveMap[0.5], offensiveType)
-		}
-		if num == 2 {
-			offensiveMap[2] = append(offensiveMap[2], offensiveType)
-		}
-	}
-
-	for defensiveType, num := range typeInfo.Defensive {
-		if num == 0 {
-			defensiveMap[0] = append(defensiveMap[0], defensiveType)
-		}
-		if num == 0.5 {
-			defensiveMap[0.5] = append(defensiveMap[0.5], defensiveType)
-		}
-		if num == 2 {
-			defensiveMap[2] = append(defensiveMap[2], defensiveType)
-		}
-	}
+	offensiveMap := b.generateTypeMap(typeInfo.Offensive)
+	defensiveMap := b.generateTypeMap(typeInfo.Defensive)
 
 	offensiveNoDamageText := b.generateTypeText(offensiveMap[0])
 	offensiveResistantText := b.generateTypeText(offensiveMap[0.5])
@@ -71,7 +47,8 @@ func (b *Bot) handleTypeCmd(
 
 	embed = b.newEmbed()
 	embed.Title = fmt.Sprintf("%s Type Info", strings.Title(pkmType))
-	embed.Description = fmt.Sprintf("%s Type Weakness, Resistances and Immunities", strings.Title(pkmType))
+	embed.Description = fmt.Sprintf(
+		"%s Type Weakness, Resistances and Immunities", strings.Title(pkmType))
 	embed.Color = typeInfo.Color
 	embed.Fields = []*discordgo.MessageEmbedField{
 		&discordgo.MessageEmbedField{
@@ -100,6 +77,25 @@ func (b *Bot) handleTypeCmd(
 
 }
 
+func (b *Bot) generateTypeMap(typeInfo map[string]float64) map[float64][]string {
+
+	typesMap := make(map[float64][]string)
+
+	for typeInInfo, num := range typeInfo {
+		if num == 0 {
+			typesMap[0] = append(typesMap[0], typeInInfo)
+		}
+		if num == 0.5 {
+			typesMap[0.5] = append(typesMap[0.5], typeInInfo)
+		}
+		if num == 2 {
+			typesMap[2] = append(typesMap[2], typeInInfo)
+		}
+	}
+
+	return typesMap
+}
+
 func (b *Bot) generateTypeText(typesList []string) string {
 
 	if len(typesList) == 0 {
@@ -107,15 +103,7 @@ func (b *Bot) generateTypeText(typesList []string) string {
 		return typesText
 	}
 
-	var typesText string
-
-	for i, typeInList := range typesList {
-		if i == len(typesList)-1 {
-			typesText += typeInList + "."
-		} else {
-			typesText += typeInList + ", "
-		}
-	}
+	typesText := strings.Join(typesList, ", ") + "."
 
 	return typesText
 }
