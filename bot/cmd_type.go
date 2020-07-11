@@ -20,11 +20,7 @@ func (b *Bot) handleTypeCmd(
 		}
 	}
 
-	var embed *discordgo.MessageEmbed
-	var err error
-
 	pkmType := env.args[0]
-
 	typeInfo, err := b.pokemonRepo.pokemonType(strings.ToLower(pkmType))
 	if err != nil {
 		return botError{
@@ -34,40 +30,20 @@ func (b *Bot) handleTypeCmd(
 		}
 	}
 
-	offensiveMap := b.generateTypeMap(typeInfo.Offensive)
-	defensiveMap := b.generateTypeMap(typeInfo.Defensive)
-
-	offensiveNoDamageText := b.generateTypeText(offensiveMap[0])
-	offensiveResistantText := b.generateTypeText(offensiveMap[0.5])
-	offensiveSuperEffectiveText := b.generateTypeText(offensiveMap[2])
-
-	defensiveNoDamageText := b.generateTypeText(defensiveMap[0])
-	defensiveResistantText := b.generateTypeText(defensiveMap[0.5])
-	defensiveSuperEffectiveText := b.generateTypeText(defensiveMap[2])
-
-	embed = b.newEmbed()
+	embed := b.newEmbed()
 	embed.Title = fmt.Sprintf("%s Type Info", strings.Title(pkmType))
 	embed.Description = fmt.Sprintf(
 		"%s Type Weakness, Resistances and Immunities", strings.Title(pkmType))
 	embed.Color = typeInfo.Color
 	embed.Fields = []*discordgo.MessageEmbedField{
-		&discordgo.MessageEmbedField{
-			Name: "Offensive",
-			Value: fmt.Sprintf("Super Effective: `%s`\nResistant: `%s`\nNo Damage: `%s`",
-				offensiveSuperEffectiveText,
-				offensiveResistantText,
-				offensiveNoDamageText,
-			),
+		{
+			Name:   "Offensive",
+			Value:  generateTypeMessage(typeInfo.Offensive),
 			Inline: false,
 		},
-		&discordgo.MessageEmbedField{
-			Name: "Defensive",
-			Value: fmt.Sprintf(
-				"Super Effective: `%s`\nResistant: `%s`\nNo Damage: `%s`",
-				defensiveSuperEffectiveText,
-				defensiveResistantText,
-				defensiveNoDamageText,
-			),
+		{
+			Name:   "Defensive",
+			Value:  generateTypeMessage(typeInfo.Defensive),
 			Inline: false,
 		},
 	}
@@ -77,33 +53,22 @@ func (b *Bot) handleTypeCmd(
 
 }
 
-func (b *Bot) generateTypeMap(typeInfo map[string]float64) map[float64][]string {
-
+func generateTypeMessage(typeInfo map[string]float64) string {
 	typesMap := make(map[float64][]string)
-
-	for typeInInfo, num := range typeInfo {
-		if num == 0 {
-			typesMap[0] = append(typesMap[0], typeInInfo)
-		}
-		if num == 0.5 {
-			typesMap[0.5] = append(typesMap[0.5], typeInInfo)
-		}
-		if num == 2 {
-			typesMap[2] = append(typesMap[2], typeInInfo)
-		}
+	for t, num := range typeInfo {
+		typesMap[num] = append(typesMap[num], t)
 	}
 
-	return typesMap
+	return fmt.Sprintf("Super Effective: `%s`\nResistant: `%s`\nNo Damage: `%s`",
+		generateTypeText(typesMap[2]),
+		generateTypeText(typesMap[0.5]),
+		generateTypeText(typesMap[0]),
+	)
 }
 
-func (b *Bot) generateTypeText(typesList []string) string {
-
+func generateTypeText(typesList []string) string {
 	if len(typesList) == 0 {
-		typesText := "None"
-		return typesText
+		return "None"
 	}
-
-	typesText := strings.Join(typesList, ", ") + "."
-
-	return typesText
+	return strings.Join(typesList, ", ") + "."
 }
