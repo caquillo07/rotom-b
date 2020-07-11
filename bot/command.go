@@ -70,6 +70,13 @@ func (b *Bot) initCommands() {
 		example:   b.addCmdPrefix("{{p}}type grass"),
 		adminOnly: false,
 	}
+	b.commands["pokedex"] = &command{
+		execute:   b.handlePokedexCmd,
+		helpText:  "Shows Pokédex info on every Pokémon.",
+		usage:     b.addCmdPrefix("{{p}}pokedex <pokemon>"),
+		example:   b.addCmdPrefix("{{p}}pokedex pokemon"),
+		adminOnly: false,
+	}
 }
 
 // addCmdPrefix replaces all cases of {{p}} with the actual
