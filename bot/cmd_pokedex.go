@@ -143,8 +143,7 @@ func (b *Bot) handlePokedexCmd(
 		embed.Fields = append(embed.Fields, &discordgo.MessageEmbedField{
 			Name: "Dens",
 			Value: fmt.Sprintf(
-				"%s\n"+
-					"%s",
+				"%s\n%s",
 				densSword,
 				densShield,
 			),
