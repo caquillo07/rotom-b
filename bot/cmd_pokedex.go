@@ -2,7 +2,6 @@ package bot
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
@@ -24,127 +23,149 @@ func (b *Bot) handlePokedexCmd(
 	var embed *discordgo.MessageEmbed
 	var err error
 
-	pkmnName := env.args[0]
+	isShiny := strings.HasSuffix(env.args[0], "*") || strings.HasPrefix(env.args[0], "*")
+	cleanPkmName := strings.ReplaceAll(env.args[0], "*", "")
 
-	pkmn, err := b.pokemonRepo.pokemon(strings.ToLower(pkmnName))
-
+	pkm, err := b.pokemonRepo.pokemon(strings.ToLower(cleanPkmName))
 	if err != nil {
 		return botError{
 			title: "Pokémon not found",
 			details: fmt.Sprintf("Pokémon %s could not be found.",
-				pkmnName),
+				cleanPkmName),
 		}
 	}
 
-	var forms string
-	if len(pkmn.Forms) > 0 {
-		forms = "Forms: " + strings.Join(pkmn.Forms, ", ") + "."
-	} else {
-		forms = ""
-	}
-
-	abilities := pkmn.Abilities.Ability1
-	if pkmn.Abilities.Ability2 != "" {
-		abilities += ", " + pkmn.Abilities.Ability2
+	pkmForm := ""
+	if len(env.args) > 1 {
+		pkmForm = getSpriteForm(env.args[1])
 	}
 
 	externalPokedexLinks := fmt.Sprintf(
 		"[Bulbapedia Entry](https://bulbapedia.bulbagarden.net/wiki/%s_(Pokémon))\n",
-		strings.Title(pkmn.Name),
+		strings.Title(pkm.Name),
 	)
-	if len(pkmn.Dens.Shield) > 0 || len(pkmn.Dens.Sword) > 0 || pkmn.Generation == "SwordShield" {
+	if len(pkm.Dens.Shield) > 0 || len(pkm.Dens.Sword) > 0 || pkm.Generation == "SwordShield" {
 		externalPokedexLinks += fmt.Sprintf(
 			"[Serebii Sword & Shield Pokédex](https://serebii.net/pokedex-swsh/%s/)",
-			strings.ToLower(pkmn.Name),
+			strings.ToLower(pkm.Name),
 		)
 	} else {
 		externalPokedexLinks += fmt.Sprintf(
-			"[Serebii Sun & Moon Pokédex](https://serebii.net/pokedex-sm/%s.shtml)",
-			strconv.Itoa(pkmn.DexID),
+			"[Serebii Sun & Moon Pokédex](https://serebii.net/pokedex-sm/%03d.shtml)",
+			pkm.DexID,
 		)
 	}
 
+	abilities := "`" + pkm.Abilities.Ability1
+	if pkm.Abilities.Ability2 != "" {
+		abilities += ",\n" + pkm.Abilities.Ability2
+	}
+	if pkm.Abilities.AbilityH != "" {
+		abilities += ",\n" + pkm.Abilities.AbilityH + " (HA)"
+	}
+	abilities += "`"
+
+	eggGroups := pkm.EggGroup1
+	if pkm.EggGroup2 != "" {
+		eggGroups = fmt.Sprintf(
+			"%s, %s",
+			pkm.EggGroup1,
+			pkm.EggGroup2,
+		)
+	}
+
+	forms := createJoinedPkmInfo("Forms", pkm.Forms)
+	densSword := createJoinedPkmInfo("Sword", pkm.Dens.Sword)
+	densShield := createJoinedPkmInfo("Shield", pkm.Dens.Shield)
+
 	embed = b.newEmbed()
-	embed.Title = fmt.Sprintf("%s Pokédex Info", strings.Title(pkmnName))
-	embed.Description = fmt.Sprintf("%s Pokédex info", strings.Title(pkmn.Name))
+	embed.Title = fmt.Sprintf("%s Pokédex Info", strings.Title(cleanPkmName))
 
 	embed.Image = &discordgo.MessageEmbedImage{
-		URL:    pkmn.spriteImage(false, ""),
+		URL:    pkm.spriteImage(isShiny, pkmForm),
 		Width:  300,
 		Height: 300,
 	}
 
 	embed.URL = fmt.Sprintf(
 		"https://bulbapedia.bulbagarden.net/wiki/%s_(Pokémon)",
-		strings.ToLower(pkmn.Name),
+		strings.ToLower(pkm.Name),
 	)
 
 	embed.Fields = []*discordgo.MessageEmbedField{
 		&discordgo.MessageEmbedField{
-			Name: "Pokémon Mis. Info",
+			Name: "Base Stats",
+			Value: fmt.Sprintf(
+				"HP: `%d`\n"+
+					"Atk: `%d`\n"+
+					"Def: `%d`\n"+
+					"Spa: `%d`\n"+
+					"SpD: `%d`\n"+
+					"Spe: `%d`\n"+
+					"Total: `%d`",
+				pkm.BaseStats.HP,
+				pkm.BaseStats.Atk,
+				pkm.BaseStats.Def,
+				pkm.BaseStats.SpA,
+				pkm.BaseStats.SpD,
+				pkm.BaseStats.Spd,
+				pkm.BaseStats.Total,
+			),
+			Inline: true,
+		},
+		&discordgo.MessageEmbedField{
+			Name:   "Abilities",
+			Value:  abilities,
+			Inline: true,
+		},
+		&discordgo.MessageEmbedField{
+			Name: "Pokémon Misc. Info",
 			Value: fmt.Sprintf(
 				"Gender Ratio: `%s`\n"+
 					"Height / Weight: `%s / %s`\n"+
-					"Catch Rate: `%s`\n"+
+					"Catch Rate: `%d`\n"+
 					"Generation: `%s`\n"+
-					"Egg Groups: `%s, %s`\n"+
-					"`%s`",
-				pkmn.GenderRatio,
-				fmt.Sprintf("%.2f", pkmn.Height),
-				fmt.Sprintf("%.2f", pkmn.Weight),
-				strconv.Itoa(pkmn.CatchRate),
-				pkmn.Generation,
-				pkmn.EggGroup1,
-				pkmn.EggGroup2,
+					"Egg Groups: `%s`\n"+
+					"%s",
+				pkm.GenderRatio,
+				fmt.Sprintf("%.2f", pkm.Height),
+				fmt.Sprintf("%.2f", pkm.Weight),
+				pkm.CatchRate,
+				pkm.Generation,
+				eggGroups,
 				forms,
 			),
 			Inline: true,
 		},
-		&discordgo.MessageEmbedField{
-			Name: "Base Stats",
-			Value: fmt.Sprintf(
-				"HP: `%s`\n"+
-					"Atk: `%s`\n"+
-					"Def:  `%s`\n"+
-					"Spa: `%s`\n"+
-					"SpD: `%s`\n"+
-					"Spe: `%s`\n",
-				strconv.Itoa(pkmn.BaseStats.HP),
-				strconv.Itoa(pkmn.BaseStats.Atk),
-				strconv.Itoa(pkmn.BaseStats.Def),
-				strconv.Itoa(pkmn.BaseStats.SpA),
-				strconv.Itoa(pkmn.BaseStats.SpD),
-				strconv.Itoa(pkmn.BaseStats.Spd),
-			),
-			Inline: true,
-		},
-		&discordgo.MessageEmbedField{
-			Name: "Abilities",
-			Value: fmt.Sprintf(
-				"Abilities: `%s`\n"+
-					"Hidden Ability: `%s`",
-				abilities,
-				pkmn.Abilities.AbilityH,
-			),
-			Inline: true,
-		},
-		&discordgo.MessageEmbedField{
+	}
+
+	if len(pkm.Dens.Shield) > 0 || len(pkm.Dens.Sword) > 0 {
+		embed.Fields = append(embed.Fields, &discordgo.MessageEmbedField{
 			Name: "Dens",
 			Value: fmt.Sprintf(
-				"Sword: `%s`\n"+
-					"Shield: `%s`",
-				strings.Join(pkmn.Dens.Sword, ", "),
-				strings.Join(pkmn.Dens.Sword, ", "),
+				"%s\n"+
+					"%s",
+				densSword,
+				densShield,
 			),
 			Inline: true,
-		},
-		&discordgo.MessageEmbedField{
-			Name:   "See More Information",
-			Value:  externalPokedexLinks,
-			Inline: true,
-		},
+		})
 	}
+
+	embed.Fields = append(embed.Fields, &discordgo.MessageEmbedField{
+		Name:   "More Info",
+		Value:  externalPokedexLinks,
+		Inline: false,
+	})
 
 	_, err = s.ChannelMessageSendEmbed(m.ChannelID, embed)
 	return err
+}
+
+func createJoinedPkmInfo(prefix string, info []string) string {
+	joinedInfo := ""
+	if len(info) > 0 {
+		joinedInfo = prefix + ": `" + strings.Join(info, ", ") + "`"
+	}
+	return joinedInfo
 }
