@@ -12,6 +12,7 @@ RUN apk update && apk add --no-cache make && apk add --no-cache git
 # the container
 WORKDIR /build
 COPY . .
+COPY .git/ ./.git/
 
 # Build the Go app
 RUN make linux
