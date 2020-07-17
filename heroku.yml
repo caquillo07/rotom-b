@@ -1,0 +1,7 @@
+build:
+  docker:
+    worker: Dockerfile
+release:
+  image: worker
+  command:
+    - echo 'Starting bot after deployment!';
