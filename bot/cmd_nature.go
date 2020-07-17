@@ -15,7 +15,7 @@ func (b *Bot) handleNatureCmd(
 
 	natures := make(map[string]string)
 
-	natures["Hardy"] = "No changes"
+	natures["Hardy"] = "No changes" // nolint:goconst
 	natures["Lonely"] = "+Atk -Def"
 	natures["Brave"] = "+Atk -Spe"
 	natures["Adamant"] = "+Atk -SpA"

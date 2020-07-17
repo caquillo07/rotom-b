@@ -43,8 +43,13 @@ func (b *Bot) initCommands() {
 		adminOnly: false,
 	}
 	b.commands["catch"] = &command{
-		execute:   b.handleCatchCmd,
-		helpText:  "Shows a detailed summary of catch rates for a given Pokémon and Ball combination.",
+		execute: b.handleCatchCmd,
+		helpText: `Shows a detailed summary of catch rates for a given Pokémon and Ball combination.
+
+This command will perform the calculations as presented by [Bulbapedia](https://bulbapedia.bulbagarden.net/wiki/Catch_rate#Probability_of_capture). 
+The calculations are estimates, and due to a [rounding error](https://bulbapedia.bulbagarden.net/wiki/Catch_rate#Probability_of_capture), at some points its impossible to calculate with accuracy.
+
+The confidence level will display when this calculations fall under the rounding error`,
 		usage:     b.addCmdPrefix("{{p}}catch <pokemon> [form] [ball_name]"),
 		example:   b.addCmdPrefix("{{p}}catch charizard gmax lux"),
 		adminOnly: false,
