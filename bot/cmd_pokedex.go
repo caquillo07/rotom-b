@@ -20,9 +20,6 @@ func (b *Bot) handlePokedexCmd(
 		}
 	}
 
-	var embed *discordgo.MessageEmbed
-	var err error
-
 	isShiny := strings.HasSuffix(env.args[0], "*") || strings.HasPrefix(env.args[0], "*")
 	cleanPkmName := strings.ReplaceAll(env.args[0], "*", "")
 
@@ -33,11 +30,6 @@ func (b *Bot) handlePokedexCmd(
 			details: fmt.Sprintf("Pokémon %s could not be found.",
 				cleanPkmName),
 		}
-	}
-
-	pkmForm := ""
-	if len(env.args) > 1 {
-		pkmForm = getSpriteForm(env.args[1])
 	}
 
 	externalPokedexLinks := fmt.Sprintf(
@@ -78,9 +70,13 @@ func (b *Bot) handlePokedexCmd(
 	densSword := createJoinedPkmInfo("Sword", pkm.Dens.Sword)
 	densShield := createJoinedPkmInfo("Shield", pkm.Dens.Shield)
 
-	embed = b.newEmbed()
-	embed.Title = fmt.Sprintf("%s Pokédex Info", strings.Title(cleanPkmName))
+	pkmForm := ""
+	if len(env.args) > 1 {
+		pkmForm = getSpriteForm(env.args[1])
+	}
 
+	embed := b.newEmbed()
+	embed.Title = fmt.Sprintf("%s Pokédex Info", strings.Title(cleanPkmName))
 	embed.Image = &discordgo.MessageEmbedImage{
 		URL:    pkm.spriteImage(isShiny, pkmForm),
 		Width:  300,

@@ -4,12 +4,12 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
+// handleCreditsCmd handles the credits command
 func (b *Bot) handleCreditsCmd(
 	s *discordgo.Session,
 	env *commandEnvironment,
 	m *discordgo.Message,
 ) error {
-
 	embed := b.newEmbed()
 	embed.Title = "Rotom-B - Credits"
 	embed.URL = "https://github.com/caquillo07/rotom-b"

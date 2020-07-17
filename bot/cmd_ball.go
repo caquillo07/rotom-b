@@ -15,7 +15,6 @@ func (b *Bot) handleBallCmd(
 	env *commandEnvironment,
 	m *discordgo.Message,
 ) error {
-
 	ball, err := b.pokemonRepo.ball(env.args[0])
 	if err != nil {
 		return err

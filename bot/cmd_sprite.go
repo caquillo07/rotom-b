@@ -20,9 +20,6 @@ func (b *Bot) handleSpriteCmd(
 		}
 	}
 
-	var embed *discordgo.MessageEmbed
-	var err error
-
 	isShiny := strings.HasSuffix(env.args[0], "*") || strings.HasPrefix(env.args[0], "*")
 	cleanPkmName := strings.ReplaceAll(env.args[0], "*", "")
 
@@ -35,7 +32,7 @@ func (b *Bot) handleSpriteCmd(
 		}
 	}
 
-	pkmForm := ""
+	var pkmForm string
 	if len(env.args) > 1 {
 		pkmForm = getSpriteForm(env.args[1])
 	}
@@ -49,10 +46,8 @@ func (b *Bot) handleSpriteCmd(
 	}
 	embedTitle += pkm.Name
 
-
-	embed = b.newEmbed()
+	embed := b.newEmbed()
 	embed.Title = embedTitle
-
 	embed.Image = &discordgo.MessageEmbedImage{
 		URL:    pkm.spriteImage(isShiny, pkmForm),
 		Width:  300,

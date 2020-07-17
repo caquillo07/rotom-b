@@ -21,9 +21,7 @@ func (b *Bot) handleDenCmd(
 	}
 
 	var embed *discordgo.MessageEmbed
-	var err error
-
-	_, err = strconv.Atoi(env.args[0])
+	_, err := strconv.Atoi(env.args[0])
 	isNumber := err == nil
 
 	if isNumber {
@@ -100,7 +98,7 @@ func (b *Bot) getDensFromPokemon(pkmnName string) (*discordgo.MessageEmbed, erro
 	}
 	embed.Fields = []*discordgo.MessageEmbedField{swordField, shieldField}
 
-	return embed, err
+	return embed, nil
 }
 
 func (b *Bot) getDenFromNumber(denNumber string) (*discordgo.MessageEmbed, error) {
@@ -145,7 +143,5 @@ func (b *Bot) getDenFromNumber(denNumber string) (*discordgo.MessageEmbed, error
 		),
 	}
 	embed.Fields = []*discordgo.MessageEmbedField{swordField, shieldField}
-	// msgEmbed.Description = message
-
-	return embed, err
+	return embed, nil
 }
