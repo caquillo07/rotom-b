@@ -20,7 +20,7 @@ WORKDIR /app
 
 COPY --from=builder /build/data ./data
 COPY --from=builder /build/den-bot .
-COPY --from=builder /build/config.yaml .
+COPY --from=builder /build/example-config.yaml config.yaml
 
 RUN chmod +x den-bot
 
