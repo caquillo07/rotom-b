@@ -100,7 +100,7 @@ func newPokemonRepo() (*pokemonRepo, error) {
 	// load all the json files, starting by dens
 	dens := make([]*den, 0)
 	if err := loadJSONInto("data/dens.json", &dens); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to load dens.json: %+v:\n", err)
 	}
 
 	// build the dens map for quick lookups
@@ -113,7 +113,7 @@ func newPokemonRepo() (*pokemonRepo, error) {
 
 	balls := make([]*pokeBall, 0)
 	if err := loadJSONInto("data/balls.json", &balls); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to load balls.json: %+v:\n", err)
 	}
 
 	ballsMap := make(map[string]*pokeBall)
@@ -126,7 +126,7 @@ func newPokemonRepo() (*pokemonRepo, error) {
 
 	pokemons := make([]*pokemon, 0)
 	if err := loadJSONInto("data/pokemon.json", &pokemons); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to load pokemon.json: %+v:\n", err)
 	}
 
 	pkmMap := make(map[string]*pokemon)
@@ -137,7 +137,7 @@ func newPokemonRepo() (*pokemonRepo, error) {
 
 	types := make([]*pokemonType, 0)
 	if err := loadJSONInto("data/types.json", &types); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to load types.json: %+v:\n", err)
 	}
 
 	typesMap := make(map[string]*pokemonType)
@@ -355,7 +355,7 @@ func getSpriteForm(form string) string {
 		"primal", "blade-form", "sunny", "rainy", "snowy", "sunshine",
 		"crowned", "starter", "black", "white", "f", "dusk-mane", "dawn-wings",
 		"megay", "megax", "gorging", "gulping", "dusk-form", "zen-mode",
-		"galarian-zen":
+		"galarian-zen", "ultra":
 		return f
 	case "galar":
 		return "galarian"
@@ -389,7 +389,7 @@ func getSpriteForm(form string) string {
 func spriteFileName(pkm, form string) string {
 	switch form {
 	case alolan, "crowned", "dusk", "midnight", galarian, "mega", "megay",
-		"megax", "primal":
+		"megax", "primal", "ultra":
 		return fmt.Sprintf("%s-%s", form, pkm)
 	case "":
 		return pkm
