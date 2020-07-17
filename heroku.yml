@@ -1,5 +1,0 @@
-build:
-  docker:
-    worker: Dockerfile
-release:
-  image: worker
