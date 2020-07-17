@@ -63,7 +63,7 @@ The confidence level will display when this calculations fall under the rounding
 	}
 	b.commands["nature"] = &command{
 		execute:   b.handleNatureCmd,
-		helpText:  "Shows info regarding Pokémon Natures.",
+		helpText:  "Shows ithe Pokémon Sprite in appropriate form",
 		usage:     b.addCmdPrefix("{{p}}nature <nature>"),
 		example:   b.addCmdPrefix("{{p}}nature modest"),
 		adminOnly: false,
@@ -79,7 +79,14 @@ The confidence level will display when this calculations fall under the rounding
 		execute:   b.handlePokedexCmd,
 		helpText:  "Shows Pokédex info on every Pokémon.",
 		usage:     b.addCmdPrefix("{{p}}pokedex <pokemon>"),
-		example:   b.addCmdPrefix("{{p}}pokedex pokemon"),
+		example:   b.addCmdPrefix("{{p}}pokedex caterpie"),
+		adminOnly: false,
+	}
+	b.commands["sprite"] = &command{
+		execute:   b.handleSpriteCmd,
+		helpText:  "Shows the Pokémon Sprite. Include * in the end for the shiny sprite.",
+		usage:     b.addCmdPrefix("{{p}}sprite <pokemon>"),
+		example:   b.addCmdPrefix("{{p}}sprite charizard* gmax"),
 		adminOnly: false,
 	}
 }
