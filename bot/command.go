@@ -89,6 +89,13 @@ The confidence level will display when this calculations fall under the rounding
 		example:   b.addCmdPrefix("{{p}}sprite charizard* gmax"),
 		adminOnly: false,
 	}
+	b.commands["invite"] = &command{
+		execute:   b.handleInviteCmd,
+		helpText:  "Get an Invite Link to invite Rotom-B to another server!",
+		usage:     b.addCmdPrefix("{{p}}invite"),
+		example:   b.addCmdPrefix("{{p}}invite"),
+		adminOnly: false,
+	}
 }
 
 // addCmdPrefix replaces all cases of {{p}} with the actual
