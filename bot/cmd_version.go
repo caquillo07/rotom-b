@@ -13,7 +13,9 @@ func (b *Bot) handleVersionCmd(
 	m *discordgo.Message,
 ) error {
 
-	url := "https://github.com/caquillo07/rotom-b"
+	const (
+		url = "https://github.com/caquillo07/rotom-b"
+	)
 
 	embed := b.newEmbed()
 	embed.Title = "Rotom-B - Bot Version"

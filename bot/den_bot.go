@@ -9,6 +9,7 @@ import (
 	"syscall"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/kubastick/dblgo"
 	"go.uber.org/zap"
 
 	"github.com/caquillo07/rotom-bot/conf"
@@ -74,6 +75,17 @@ func (b *Bot) ready(s *discordgo.Session, event *discordgo.Ready) {
 	// Set the playing status.
 	if err := s.UpdateStatus(0, b.config.Discord.PlayingStatus); err != nil {
 		zap.L().Error("error setting bot playing status", zap.Error(err))
+	}
+
+	guilds, err := b.session.UserGuilds(0, "", "")
+	fmt.Println("Total guilds Rotom-B is on: ", len(guilds))
+
+	//TODO: add dbl API token here
+	dbl := dblgo.NewDBLApi("bot dbl api token")
+
+	err = dbl.PostStatsSimple(len(guilds))
+	if err != nil {
+		fmt.Println(err)
 	}
 }
 
