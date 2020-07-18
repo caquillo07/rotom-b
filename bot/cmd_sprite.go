@@ -34,7 +34,15 @@ func (b *Bot) handleSpriteCmd(
 
 	var pkmForm string
 	if len(env.args) > 1 {
-		pkmForm = getSpriteForm(env.args[1])
+		fmt.Println("submitted form is", env.args[1])
+		fmt.Println("found form", getSpriteForm(env.args[1]))
+		for _, form := range pkm.Forms {
+			fmt.Println("form:", pkm.Name, form)
+			if strings.ToLower(form) == strings.ToLower(getSpriteForm(env.args[1])) {
+				pkmForm = getSpriteForm(env.args[1])
+				fmt.Println("Found pkm form: %s", pkmForm)
+			}
+		}
 	}
 
 	var embedTitle string
