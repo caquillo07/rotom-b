@@ -96,6 +96,13 @@ The confidence level will display when this calculations fall under the rounding
 		example:   b.addCmdPrefix("{{p}}invite"),
 		adminOnly: false,
 	}
+	b.commands["version"] = &command{
+		execute:   b.handleVersionCmd,
+		helpText:  "Check which version of Rotom-B is running.",
+		usage:     b.addCmdPrefix("{{p}}version"),
+		example:   b.addCmdPrefix("{{p}}version"),
+		adminOnly: false,
+	}
 }
 
 // addCmdPrefix replaces all cases of {{p}} with the actual

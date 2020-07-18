@@ -8,6 +8,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/caquillo07/rotom-bot/conf"
+	"github.com/caquillo07/rotom-bot/metrics"
 )
 
 var cfgFile string
@@ -50,6 +51,11 @@ func initLogging() {
 		logger, _ = zap.NewProduction()
 	}
 
-	logger.Info("Starting Den-Bot")
+	logger.Info(
+		"Starting Den-Bot",
+		zap.String("version", metrics.Version),
+		zap.String("commit", metrics.Commit),
+		zap.String("branch", metrics.Branch),
+	)
 	zap.ReplaceGlobals(logger)
 }
