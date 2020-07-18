@@ -51,6 +51,19 @@ func (b *Bot) getDensFromPokemon(pkmnName, form string, isShiny bool) (*discordg
 		}
 	}
 
+	if len(pkm.Dens.Shield) == 0 && len(pkm.Dens.Sword) == 0 {
+		return nil, botError{
+			title: fmt.Sprintf(
+				"%s is not in any Dens!",
+				pkm.Name,
+			),
+			details: fmt.Sprintf(
+				"%s could not be found in any current dens.",
+				pkm.Name,
+			),
+		}
+	}
+
 	embed := b.newEmbed()
 	embed.Title = pkm.Name + " is in the following Dens:"
 	embed.Image = &discordgo.MessageEmbedImage{
