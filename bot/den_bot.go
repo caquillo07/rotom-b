@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"os/signal"
@@ -119,6 +120,14 @@ func (b *Bot) handleMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 		zap.String("channel", channel.Name),
 	)
 
+	// Handle panics gracefully, sucks that we do it this late but we need some
+	// of the info gathered above. Special care needed when changing code above.
+	defer func(reqID uint64) {
+		if r := recover(); r != nil {
+			b.handlePanic(r, s, m, reqID)
+		}
+	}(reqID)
+
 	// To not have to check for the prefix on every single command
 	cleanedMsg := strings.TrimPrefix(m.Content, b.config.Bot.Prefix)
 	cmdParts := strings.Split(cleanedMsg, " ")
@@ -143,22 +152,45 @@ func (b *Bot) handleMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 				zap.Error(err),
 			)
 
-			// If the error is a botError, that means that we will consider
-			// it public and just pass the error on to the user.
-			errTitle := "Internal Error"
-			errDetails := fmt.Sprintf(`Whoops, there was an error processing the request with ID **%d**`, reqID)
-			if publicErr, ok := err.(botError); ok {
-				errTitle, errDetails = publicErr.title, publicErr.details
-			}
-			_, err := s.ChannelMessageSendEmbed(m.ChannelID, b.newErrorEmbedf(errTitle, errDetails))
-
-			// If this errors, then ¯\_(ツ)_/¯ log and move on
-			if err != nil {
-				logger.Error(
-					"failed to communicate command error",
-					zap.Error(err),
-				)
-			}
+			b.handleCommandError(s, m, reqID, err)
 		}
 	}(reqID)
+}
+
+func (b *Bot) handleCommandError(s *discordgo.Session, m *discordgo.MessageCreate, reqID uint64, err error) {
+	// If the error is a botError, that means that we will consider
+	// it public and just pass the error on to the user.
+	errTitle := "Internal Error"
+	errDetails := fmt.Sprintf(`Whoops, there was an error processing the request with ID **%d**`, reqID)
+	if publicErr, ok := err.(botError); ok {
+		errTitle, errDetails = publicErr.title, publicErr.details
+	}
+	_, err = s.ChannelMessageSendEmbed(m.ChannelID, b.newErrorEmbedf(errTitle, errDetails))
+
+	// If this errors, then ¯\_(ツ)_/¯ log and move on
+	if err != nil {
+		zap.L().Error(
+			"failed to communicate command error",
+			zap.Error(err),
+		)
+	}
+}
+
+func (b *Bot) handlePanic(panic interface{}, s *discordgo.Session, m *discordgo.MessageCreate, reqID uint64) {
+	logger := zap.L()
+	logger.Error(
+		"recovered from panic while handling message",
+		zap.String("panic_message", fmt.Sprintf("%s", panic)),
+		zap.String("command", m.Content),
+		zap.String("user", m.Author.Username),
+	)
+
+	// Log the stacktrace to the console
+	logger.Info(
+		"recovered from panic",
+		zap.String("panic_message", fmt.Sprintf("%s", panic)),
+		zap.Stack("stack_trace"),
+	)
+
+	b.handleCommandError(s, m, reqID, errors.New("internal error"))
 }
