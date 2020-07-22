@@ -12,11 +12,9 @@ func (b *Bot) handleInviteCmd(
 	m *discordgo.Message,
 ) error {
 
-	inviteUrl := "https://discordapp.com/oauth2/authorize?client_id=726478988276531212&scope=bot&permissions=52224"
-
 	embed := b.newEmbed()
 	embed.Title = "Rotom-B - Invite Link"
-	embed.URL = inviteUrl
+	embed.URL = b.config.Discord.InviteURL
 
 	embed.Thumbnail = &discordgo.MessageEmbedThumbnail{
 		URL:    "https://i.imgur.com/JqezAUg.gif",
@@ -27,7 +25,7 @@ func (b *Bot) handleInviteCmd(
 	embed.Description = fmt.Sprintf(
 		"Spread the love of Pokémon by adding Rotom-B to your server with basic message permissions. Enjoy!\n\n"+
 			"[Add Rotom-B to your server!](%s)",
-		inviteUrl,
+		b.config.Discord.InviteURL,
 	)
 	_, err := s.ChannelMessageSendEmbed(m.ChannelID, embed)
 	return err
