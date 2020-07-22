@@ -11,8 +11,10 @@ import (
 
 type Config struct {
 	Discord struct {
-		Token         string
-		PlayingStatus string
+		Token            string
+		PlayingStatus    string
+		InviteURL        string
+		SupportServerURL string
 	}
 
 	Bot struct {

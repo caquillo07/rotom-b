@@ -39,6 +39,16 @@ func (b *Bot) handleHelpCmd(
 		}
 	}
 
+	commandFields = append(commandFields, &discordgo.MessageEmbedField{
+		Name: "Support",
+		Value: fmt.Sprintf(`[Need more help? Join Rotom-B's support server!](%s)
+[If you want to invite Rotom-B to your server, click here](%s)`,
+			b.config.Discord.SupportServerURL,
+			b.config.Discord.InviteURL,
+		),
+		Inline: true,
+	})
+
 	embed := b.newEmbed()
 	embed.Title = "Rotom-B - Help"
 	embed.URL = "https://i.imgur.com/xcEamGI.gif"
