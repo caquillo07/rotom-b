@@ -64,48 +64,101 @@ func (b *Bot) getDensFromPokemon(pkmnName, form string, isShiny bool) (*discordg
 		}
 	}
 
-	embed := b.newEmbed()
-	embed.Title = pkm.Name + " is in the following Dens:"
-	embed.Image = &discordgo.MessageEmbedImage{
-		URL:    pkm.spriteImage(isShiny, form),
-		Width:  300,
-		Height: 300,
-	}
+	swordDensHA := make([]string, 0)
+	swordDensStandard := make([]string, 0)
+	shieldDensHA := make([]string, 0)
+	shieldDensStandard := make([]string, 0)
 
-	if txt := getDensText(pkm.Dens.Sword); txt != "" {
-		if txt := getDensText(pkm.Dens.Shield); txt != "" {
-			embed.Fields = append(embed.Fields, &discordgo.MessageEmbedField{
-				Inline: true,
-				Name:   "*Sword:* ",
-				Value:  txt,
-			})
+	// Sword
+	for _, d := range pkm.Dens.Sword {
+		den, err := b.pokemonRepo.den(d)
+		if err != nil {
+			return nil, nil
+		}
+
+		if isDenPokemonHA(pkm.Name, den.Sword) {
+			swordDensHA = append(swordDensHA, d)
+		} else {
+			swordDensStandard = append(swordDensStandard, d)
 		}
 	}
 
-	if txt := getDensText(pkm.Dens.Shield); txt != "" {
-		embed.Fields = append(embed.Fields, &discordgo.MessageEmbedField{
-			Inline: true,
-			Name:   "*Shield:* ",
-			Value:  txt,
-		})
+	// Shield
+	for _, d := range pkm.Dens.Shield {
+		den, err := b.pokemonRepo.den(d)
+		if err != nil {
+			return nil, nil
+		}
+
+		if isDenPokemonHA(pkm.Name, den.Shield) {
+			shieldDensHA = append(shieldDensHA, d)
+		} else {
+			shieldDensStandard = append(shieldDensStandard, d)
+		}
+	}
+
+	embed := b.newEmbed()
+	embed.Title = pkm.Name + " is in the following Dens:"
+	embed.Thumbnail = &discordgo.MessageEmbedThumbnail{
+		URL:    pkm.spriteImage(isShiny, form),
+		Width:  150,
+		Height: 150,
+	}
+	embed.Fields = []*discordgo.MessageEmbedField{
+		&discordgo.MessageEmbedField{
+			Name:   "Sword",
+			Value:  getDensText(swordDensStandard, swordDensHA),
+			Inline: false,
+		},
+		&discordgo.MessageEmbedField{
+			Name:   "Shield",
+			Value:  getDensText(shieldDensStandard, shieldDensHA),
+			Inline: false,
+		},
 	}
 
 	return embed, nil
 }
 
-func getDensText(dens []string) string {
+func isDenPokemonHA(pkmName string, gameDens []*denPokemon) bool {
+	for _, gd := range gameDens {
+		if pkmName != gd.Name || !strings.HasPrefix(gd.Ability, "Hidden") {
+			continue
+		}
+		return true
+	}
+	return false
+}
+
+func getDensText(densStandard []string, densHA []string) string {
 	var txt string
-	for i := 0; i < len(dens); i++ {
-		den := strings.ToLower(dens[i])
+	for i := 0; i < len(densStandard); i++ {
+		den := strings.ToLower(densStandard[i])
 		txt += fmt.Sprintf(
 			"[%s](https://www.serebii.net/swordshield/maxraidbattles/den%s.shtml)",
 			den,
 			den,
 		)
-		if i != len(dens)-1 {
+		if i != len(densStandard)-1 {
 			txt += ", "
 		}
 	}
+
+	if len(densHA) > 0 {
+		txt += "\nHA: "
+		for i := 0; i < len(densHA); i++ {
+			den := strings.ToLower(densHA[i])
+			txt += fmt.Sprintf(
+				"[%s](https://www.serebii.net/swordshield/maxraidbattles/den%s.shtml)",
+				den,
+				den,
+			)
+			if i != len(densHA)-1 {
+				txt += ", "
+			}
+		}
+	}
+	fmt.Print(txt)
 	return txt
 }
 
