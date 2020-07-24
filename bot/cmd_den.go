@@ -64,86 +64,99 @@ func (b *Bot) getDensFromPokemon(pkmnName, form string, isShiny bool) (*discordg
 		}
 	}
 
-	// TODO: Optimize this later, too much repeated code!
+	swordDensHA := make([]string, 0)
+	swordDensStandard := make([]string, 0)
+	shieldDensHA := make([]string, 0)
+	ShieldDensStandard := make([]string, 0)
 
-	//Sword
-	var txtSword, txtHASword string
-	for i := 0; i < len(pkm.Dens.Sword); i++ {
-		den, _ := b.pokemonRepo.den(pkm.Dens.Sword[i])
-		for j := 0; j < len(den.Sword); j++ {
-			if strings.ToLower(den.Sword[j].Name) == strings.ToLower(pkm.Name) {
-				if den.Sword[j].Ability == "Standard" {
-					txtSword += fmt.Sprintf(
-						"[%s](https://www.serebii.net/swordshield/maxraidbattles/den%s.shtml), ",
-						den.Number,
-						den.Number,
-					)
-				} else {
-					txtHASword += fmt.Sprintf(
-						"[%s](https://www.serebii.net/swordshield/maxraidbattles/den%s.shtml), ",
-						den.Number,
-						den.Number,
-					)
-				}
-			}
+	// Sword
+	for _, d := range pkm.Dens.Sword {
+		den, err := b.pokemonRepo.den(d)
+		if err != nil {
+			return nil, nil
+		}
+
+		if isDenPokemonHA(pkm.Name, den.Sword) {
+			swordDensHA = append(swordDensHA, d)
+		} else {
+			swordDensStandard = append(swordDensStandard, d)
 		}
 	}
 
-	//Shield
-	var txtShield, txtHAShield string
-	for i := 0; i < len(pkm.Dens.Shield); i++ {
-		den, _ := b.pokemonRepo.den(pkm.Dens.Shield[i])
-		for j := 0; j < len(den.Shield); j++ {
-			if strings.ToLower(den.Shield[j].Name) == strings.ToLower(pkm.Name) {
-				if den.Shield[j].Ability == "Standard" {
-					txtShield += fmt.Sprintf(
-						"[%s](https://www.serebii.net/swordshield/maxraidbattles/den%s.shtml), ",
-						den.Number,
-						den.Number,
-					)
-				} else {
-					txtHAShield += fmt.Sprintf(
-						"[%s](https://www.serebii.net/swordshield/maxraidbattles/den%s.shtml), ",
-						den.Number,
-						den.Number,
-					)
-				}
-			}
+	// Shield
+	for _, d := range pkm.Dens.Shield {
+		den, err := b.pokemonRepo.den(d)
+		if err != nil {
+			return nil, nil
+		}
+
+		if isDenPokemonHA(pkm.Name, den.Shield) {
+			shieldDensHA = append(ShieldDensStandard, d)
+		} else {
+			ShieldDensStandard = append(ShieldDensStandard, d)
 		}
 	}
 
 	embed := b.newEmbed()
 	embed.Title = pkm.Name + " is in the following Dens:"
-	embed.Image = &discordgo.MessageEmbedImage{
+	embed.Thumbnail = &discordgo.MessageEmbedThumbnail{
 		URL:    pkm.spriteImage(isShiny, form),
-		Width:  300,
-		Height: 300,
+		Width:  150,
+		Height: 150,
 	}
-	embed.Fields = []*discordgo.MessageEmbedField{}
-
-	if txtSword != "" || txtHASword != "" {
-		if txtHASword != "" {
-			txtHASword = "HA: " + txtHASword
-		}
-		densSword := &discordgo.MessageEmbedField{
-			Name:  "Sword",
-			Value: txtSword + txtHASword,
-		}
-		embed.Fields = append(embed.Fields, densSword)
-	}
-
-	if txtShield != "" || txtHAShield != "" {
-		if txtHAShield != "" {
-			txtHAShield = "HA: " + txtHAShield
-		}
-		densShield := &discordgo.MessageEmbedField{
-			Name:  "Sword",
-			Value: txtShield + txtHAShield,
-		}
-		embed.Fields = append(embed.Fields, densShield)
+	embed.Fields = []*discordgo.MessageEmbedField{
+		&discordgo.MessageEmbedField{
+			Name:   "Sword",
+			Value:  getDensText(swordDensStandard, swordDensHA),
+			Inline: false,
+		},
+		&discordgo.MessageEmbedField{
+			Name:   "Shield",
+			Value:  getDensText(ShieldDensStandard, shieldDensHA),
+			Inline: false,
+		},
 	}
 
 	return embed, nil
+}
+
+func isDenPokemonHA(pkmName string, gameDens []*denPokemon) bool {
+	for _, gd := range gameDens {
+		if pkmName != gd.Name || !strings.HasPrefix(gd.Ability, "Hidden") {
+			continue
+		}
+		return true
+	}
+	return false
+}
+
+func getDensText(densStandard []string, densHA []string) string {
+	var txt string
+	for i := 0; i < len(densStandard); i++ {
+		den := strings.ToLower(densStandard[i])
+		txt += fmt.Sprintf(
+			"[%s](https://www.serebii.net/swordshield/maxraidbattles/den%s.shtml)",
+			den,
+			den,
+		)
+	}
+
+	if len(densHA) > 0 {
+		txt += "\nHA: "
+		for i := 0; i < len(densHA); i++ {
+			den := strings.ToLower(densHA[i])
+			txt += fmt.Sprintf(
+				"[%s](https://www.serebii.net/swordshield/maxraidbattles/den%s.shtml)",
+				den,
+				den,
+			)
+			if i != len(densHA)-1 {
+				txt += ", "
+			}
+		}
+	}
+	fmt.Print(txt)
+	return txt
 }
 
 func (b *Bot) getDenFromNumber(denNumber string) (*discordgo.MessageEmbed, error) {
