@@ -67,7 +67,7 @@ func (b *Bot) getDensFromPokemon(pkmnName, form string, isShiny bool) (*discordg
 	swordDensHA := make([]string, 0)
 	swordDensStandard := make([]string, 0)
 	shieldDensHA := make([]string, 0)
-	ShieldDensStandard := make([]string, 0)
+	shieldDensStandard := make([]string, 0)
 
 	// Sword
 	for _, d := range pkm.Dens.Sword {
@@ -91,9 +91,9 @@ func (b *Bot) getDensFromPokemon(pkmnName, form string, isShiny bool) (*discordg
 		}
 
 		if isDenPokemonHA(pkm.Name, den.Shield) {
-			shieldDensHA = append(ShieldDensStandard, d)
+			shieldDensHA = append(shieldDensHA, d)
 		} else {
-			ShieldDensStandard = append(ShieldDensStandard, d)
+			shieldDensStandard = append(shieldDensStandard, d)
 		}
 	}
 
@@ -112,7 +112,7 @@ func (b *Bot) getDensFromPokemon(pkmnName, form string, isShiny bool) (*discordg
 		},
 		&discordgo.MessageEmbedField{
 			Name:   "Shield",
-			Value:  getDensText(ShieldDensStandard, shieldDensHA),
+			Value:  getDensText(shieldDensStandard, shieldDensHA),
 			Inline: false,
 		},
 	}
@@ -139,6 +139,9 @@ func getDensText(densStandard []string, densHA []string) string {
 			den,
 			den,
 		)
+		if i != len(densStandard)-1 {
+			txt += ", "
+		}
 	}
 
 	if len(densHA) > 0 {
