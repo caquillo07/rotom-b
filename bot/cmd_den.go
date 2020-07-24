@@ -158,7 +158,6 @@ func getDensText(densStandard []string, densHA []string) string {
 			}
 		}
 	}
-	fmt.Print(txt)
 	return txt
 }
 
