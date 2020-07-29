@@ -2,6 +2,7 @@ package bot
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
@@ -18,6 +19,15 @@ type command struct {
 type commandEnvironment struct {
 	command string
 	args    []string
+}
+
+type pokemonArg struct {
+	name    string
+	isShiny bool
+	ball    string
+	form    string
+	den     string
+	extras  []string
 }
 
 func (b *Bot) initCommands() {
@@ -127,4 +137,105 @@ func (b *Bot) newErrorEmbedf(errorTitle, errorMsg string, a ...interface{}) *dis
 	embed.Description = fmt.Sprintf(errorMsg, a...)
 	embed.Color = b.config.Bot.ErrorEmbedColor
 	return embed
+}
+
+func parsePokemonCommand(args []string) pokemonArg {
+
+	// make a uniformed string to make it easier to parse
+	for i, a := range args {
+		args[i] = strings.ToLower(a)
+	}
+
+	// then test each thing we are looking for, this is not optimal but it works
+	// for now.
+	pkmArgs := pokemonArg{}
+	var skipIndex bool
+	for i, arg := range args {
+
+		// in some instances, we already processed the this index on the
+		// previous index. In such cases, simply move on. Make sure to reset
+		// the flag so we don't skip parsing the rest of the arguments.
+		if skipIndex {
+			skipIndex = false
+			continue
+		}
+
+		// first we will try to find the form by looping through the arguments
+		// and see if any of them is a valid form.
+		if f := getSpriteForm(arg); f != "" {
+			pkmArgs.form = f
+			continue
+		}
+
+		// next, try to find a den number if any
+		if _, err := strconv.Atoi(arg); err == nil {
+			pkmArgs.den = arg
+			continue
+		}
+
+		// now check if its a pokemon with a two-part name and its not the last
+		// element in the slice
+		cleanArg := strings.ReplaceAll(arg, "*", "")
+		if (cleanArg == "mr" || cleanArg == "mr." || cleanArg == "mime") && i != len(args)-1 {
+			secondPart := args[i+1]
+			cleanSecondPart := strings.ReplaceAll(secondPart, "*", "")
+			if strings.Contains(arg, "mr") && (cleanSecondPart == "rime" || cleanSecondPart == "mime") {
+				pkmArgs.name = "mr " + cleanSecondPart
+				pkmArgs.isShiny = strings.Contains(arg, "*") || strings.Contains(secondPart, "*")
+				skipIndex = true
+				continue
+			}
+
+			if cleanArg == "mime" && strings.Contains(cleanSecondPart, "jr") {
+				pkmArgs.name = "mime jr"
+				pkmArgs.isShiny = strings.Contains(arg, "*") || strings.Contains(secondPart, "*")
+				skipIndex = true
+				continue
+			}
+
+			// if for some reason we made it this far, let rest of the parser
+			// continue. The leftover will just be added to the extras at the
+			// end
+		}
+
+		// we have to check for special hyphenated names because the sprites
+		// are named stupidly and inconsistently
+		var found bool
+		for _, s := range []string{"mr-mime", "mr.-mime", "mr-rime", "mr.-rime", "mime-jr", "mime-jr."} {
+			if cleanArg != s {
+				continue // continue this inner loop
+			}
+
+			// found a special one, process as needed, then break
+			found = true
+			s = strings.ReplaceAll(s, "-", " ")
+			pkmArgs.name = strings.ReplaceAll(s, ".", "")
+			fmt.Println(arg, strings.Contains(arg, "*"))
+			pkmArgs.isShiny = strings.Contains(arg, "*")
+			break
+		}
+		if found {
+			continue
+		}
+
+		// last, lets see if we can find a den on the command. This is a "heavy"
+		// check since we are loop through an array inside another loop, so lets
+		// do it last.
+		for _, b := range ballNames {
+			if strings.Contains(arg, b) {
+				pkmArgs.ball = arg
+				found = true
+				break // we done, break the inner loop
+			}
+		}
+		if found {
+			continue
+		}
+
+		// if we made it this far, none of the parsers caught it, just add it
+		// to the extra/unknown commands
+		pkmArgs.extras = append(pkmArgs.extras, arg)
+	}
+
+	return pkmArgs
 }

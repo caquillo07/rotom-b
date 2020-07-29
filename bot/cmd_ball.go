@@ -15,9 +15,20 @@ func (b *Bot) handleBallCmd(
 	env *commandEnvironment,
 	m *discordgo.Message,
 ) error {
-	ball, err := b.pokemonRepo.ball(env.args[0])
+	if len(env.args) == 0 {
+		return botError{
+			title:   "Validation Error",
+			details: "Please enter a Pokéball name to get its animation.",
+		}
+	}
+	pkmArgs := parsePokemonCommand(env.args)
+
+	ball, err := b.pokemonRepo.ball(pkmArgs.ball)
 	if err != nil {
-		return err
+		return botError{
+			title:   "Pokéball not found",
+			details: fmt.Sprintf("Pokéball %s could not be found.", pkmArgs.ball),
+		}
 	}
 
 	embed := b.newEmbed()

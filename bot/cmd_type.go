@@ -33,7 +33,9 @@ func (b *Bot) handleTypeCmd(
 	embed := b.newEmbed()
 	embed.Title = fmt.Sprintf("%s Type Info", strings.Title(pkmType))
 	embed.Description = fmt.Sprintf(
-		"%s Type Weakness, Resistances and Immunities", strings.Title(pkmType))
+		"%s Type Weakness, Resistances and Immunities",
+		strings.Title(pkmType),
+	)
 	embed.Color = typeInfo.Color
 	embed.Fields = []*discordgo.MessageEmbedField{
 		{
@@ -50,7 +52,6 @@ func (b *Bot) handleTypeCmd(
 
 	_, err = s.ChannelMessageSendEmbed(m.ChannelID, embed)
 	return err
-
 }
 
 func generateTypeMessage(typeInfo map[string]float64) string {
@@ -59,7 +60,8 @@ func generateTypeMessage(typeInfo map[string]float64) string {
 		typesMap[num] = append(typesMap[num], t)
 	}
 
-	return fmt.Sprintf("Super Effective: `%s`\nResistant: `%s`\nNo Damage: `%s`",
+	return fmt.Sprintf(
+		"Super Effective: `%s`\nResistant: `%s`\nNo Damage: `%s`",
 		generateTypeText(typesMap[2]),
 		generateTypeText(typesMap[0.5]),
 		generateTypeText(typesMap[0]),

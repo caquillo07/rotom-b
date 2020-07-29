@@ -164,10 +164,15 @@ func (p *pokemon) spriteImage(shiny bool, form string) string {
 		fileType = "shiny"
 	}
 
+	cleanName := strings.ReplaceAll(p.Name, "-", "")
+	// the dumb mr mime line has special sprite names. I. hate. this.
+	if p.DexID == 439 || p.DexID == 122 || p.DexID == 866 {
+		cleanName = strings.ReplaceAll(p.Name, " ", "-")
+	}
 	return fmt.Sprintf(
 		"https://raphgg.github.io/den-bot/data/sprites/pokemon/%s/%s.gif",
 		fileType,
-		spriteFileName(strings.ToLower(p.Name), strings.ToLower(form)),
+		spriteFileName(strings.ToLower(cleanName), strings.ToLower(form)),
 	)
 }
 
@@ -222,10 +227,12 @@ func (r *pokemonRepo) den(denNumber string) (*den, error) {
 func (r *pokemonRepo) ball(ball string) (*pokeBall, error) {
 
 	// first clean the input a bit, we will remove all white spaces,
-	// then remove the "ball" part if present, and account for any
-	// other names the ball may go for.
+	// then remove the "ball" part and any hyphens/underscores if present,
+	// and account for any other names the ball may go for.
 	ball = strings.ToLower(ball)
-	ball = strings.ReplaceAll(ball, "ball", "")
+	for _, mod := range []string{"ball", "-", "_"} {
+		ball = strings.ReplaceAll(ball, mod, "")
+	}
 	ball = strings.TrimSpace(ball)
 	switch ball {
 	case "lux":

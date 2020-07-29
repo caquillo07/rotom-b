@@ -2,7 +2,6 @@ package bot
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
@@ -20,18 +19,25 @@ func (b *Bot) handleDenCmd(
 		}
 	}
 
-	var embed *discordgo.MessageEmbed
-	_, err := strconv.Atoi(env.args[0])
-	isNumber := err == nil
+	pkmArgs := parsePokemonCommand(env.args)
 
-	if isNumber {
-		embed, err = b.getDenFromNumber(env.args[0])
-	} else {
-		isShiny := strings.HasSuffix(env.args[0], "*") || strings.HasPrefix(env.args[0], "*")
-		cleanPkmName := strings.ReplaceAll(env.args[0], "*", "")
-		form := getFormFromArgs(env.args)
-		embed, err = b.getDensFromPokemon(cleanPkmName, form, isShiny)
+	if pkmArgs.den != "" {
+		embed, err := b.getDenFromNumber(env.args[0])
+		if err != nil {
+			return err
+		}
+		_, err = s.ChannelMessageSendEmbed(m.ChannelID, embed)
+		return err
 	}
+
+	// if the name and shininess were not parsed properly, lets assume it
+	// follows the order on the help description.
+	if pkmArgs.name == "" {
+		pkmArgs.name = strings.ReplaceAll(env.args[0], "*", "")
+		pkmArgs.isShiny = strings.HasSuffix(env.args[0], "*") || strings.HasPrefix(env.args[0], "*")
+	}
+
+	embed, err := b.getDensFromPokemon(pkmArgs.name, pkmArgs.form, pkmArgs.isShiny)
 	if err != nil {
 		return err
 	}
@@ -41,8 +47,7 @@ func (b *Bot) handleDenCmd(
 }
 
 func (b *Bot) getDensFromPokemon(pkmnName, form string, isShiny bool) (*discordgo.MessageEmbed, error) {
-
-	pkm, err := b.pokemonRepo.pokemon(strings.ToLower(pkmnName))
+	pkm, err := b.pokemonRepo.pokemon(pkmnName)
 	if err != nil {
 		return nil, botError{
 			title: "Pokémon not found",
@@ -158,7 +163,10 @@ func getDensText(densStandard []string, densHA []string) string {
 			}
 		}
 	}
-	fmt.Print(txt)
+
+	if txt == "" {
+		txt = "N/A"
+	}
 	return txt
 }
 
