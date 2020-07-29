@@ -25,18 +25,24 @@ func (b *Bot) handleCatchCmd(
 		}
 	}
 
-	isShiny := strings.HasSuffix(env.args[0], "*") || strings.HasPrefix(env.args[0], "*")
-	cleanPkmName := strings.ReplaceAll(env.args[0], "*", "")
-	pkm, err := b.pokemonRepo.pokemon(cleanPkmName)
+	pkmArgs := parsePokemonCommand(env.args)
+
+	// if the name and shininess were not parsed properly, lets assume it
+	// follows the order on the help description.
+	if pkmArgs.name == "" {
+		pkmArgs.name = strings.ReplaceAll(env.args[0], "*", "")
+		pkmArgs.isShiny = strings.HasSuffix(env.args[0], "*") || strings.HasPrefix(env.args[0], "*")
+	}
+
+	pkm, err := b.pokemonRepo.pokemon(pkmArgs.name)
 	if err != nil {
 		return botError{
 			title:   "Not Found",
-			details: fmt.Sprintf("Pokemon %s was not found", cleanPkmName),
+			details: fmt.Sprintf("Pokemon %s was not found", pkmArgs.name),
 		}
 	}
 
-	form := getFormFromArgs(env.args)
-	ball, err := b.pokemonRepo.ball(env.args[len(env.args)-1])
+	ball, err := b.pokemonRepo.ball(pkmArgs.ball)
 	if err != nil && err != errBallDoesNotExist {
 		return err
 	}
@@ -51,7 +57,7 @@ func (b *Bot) handleCatchCmd(
 
 	// If the ball does not exist, that means we got just a pokemon request
 	if ball == nil {
-		embed, err := b.getPokemonTopFourBalls(pkm, form, isShiny)
+		embed, err := b.getPokemonTopFourBalls(pkm, pkmArgs.form, pkmArgs.isShiny)
 		if err != nil {
 			return err
 		}
@@ -60,7 +66,7 @@ func (b *Bot) handleCatchCmd(
 	}
 
 	// If we got a ball, we are doing an specific check against a pokemon.
-	embed, err := b.getPokemonCatchRate(pkm, ball, form, isShiny)
+	embed, err := b.getPokemonCatchRate(pkm, ball, pkmArgs.form, pkmArgs.isShiny)
 	if err != nil {
 		return err
 	}
@@ -104,7 +110,7 @@ func (b *Bot) getPokemonCatchRate(
 				ball.Name,
 				description,
 				catchRateConfidenceURL,
-				confidenceEmoji(lowerConfidence && highConfidence),
+				confidenceEmoji(lowerConfidence && highConfidence || ball.ID == "master"),
 			),
 			Inline: true,
 		},
@@ -130,7 +136,7 @@ func (b *Bot) getPokemonTopFourBalls(pkm *pokemon, form string, shiny bool) (*di
 	}
 
 	topFourDesp := make([]string, 0)
-	for _, pb := range b.getBestBallsForPokemon(pkm, isGmax) {
+	for _, pb := range b.getBestBallsForPokemon(pkm) {
 		lowerCatchProb, _ := pkm.captureRate(pb, 30, 0, isGmax, false)
 		higherCatchProb, _ := pkm.captureRate(pb, 70, 31, isGmax, false)
 		description := fmt.Sprintf(
@@ -174,7 +180,7 @@ func (b *Bot) getPokemonTopFourBalls(pkm *pokemon, form string, shiny bool) (*di
 }
 
 // getBestBallsForPokemon returns
-func (b *Bot) getBestBallsForPokemon(pkm *pokemon, isGmax bool) []*pokeBall {
+func (b *Bot) getBestBallsForPokemon(pkm *pokemon) []*pokeBall {
 	balls := make([]*pokeBall, 0)
 	for _, pb := range b.pokemonRepo.ballsCatchRatesForPokemon(pkm) {
 		if isExcludedBall(pb) {
@@ -184,17 +190,6 @@ func (b *Bot) getBestBallsForPokemon(pkm *pokemon, isGmax bool) []*pokeBall {
 	}
 
 	return balls[:4]
-}
-
-func getFormFromArgs(args []string) string {
-
-	// the form will always be the second element
-	// e.g: blastoise gmax
-	if len(args) < 2 || args[1] == "" {
-		return ""
-	}
-
-	return getSpriteForm(args[1])
 }
 
 func (b *Bot) getPokemonColor(pType string) int {

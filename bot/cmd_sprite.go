@@ -16,48 +16,40 @@ func (b *Bot) handleSpriteCmd(
 	if len(env.args) == 0 {
 		return botError{
 			title:   "Validation Error",
-			details: "Please enter a Pokémon name to get its Pokédex info.",
+			details: "Please enter a Pokémon name to get its sprite.",
 		}
 	}
 
-	isShiny := strings.HasSuffix(env.args[0], "*") || strings.HasPrefix(env.args[0], "*")
-	cleanPkmName := strings.ReplaceAll(env.args[0], "*", "")
+	pkmArgs := parsePokemonCommand(env.args)
 
-	pkm, err := b.pokemonRepo.pokemon(strings.ToLower(cleanPkmName))
+	// if the name and shininess were not parsed properly, lets assume it
+	// follows the order on the help description.
+	if pkmArgs.name == "" {
+		pkmArgs.name = strings.ReplaceAll(env.args[0], "*", "")
+		pkmArgs.isShiny = strings.HasSuffix(env.args[0], "*") || strings.HasPrefix(env.args[0], "*")
+	}
+
+	pkm, err := b.pokemonRepo.pokemon(strings.ToLower(pkmArgs.name))
 	if err != nil {
 		return botError{
-			title: "Pokémon not found",
-			details: fmt.Sprintf("Pokémon %s could not be found.",
-				cleanPkmName),
-		}
-	}
-
-	var pkmForm string
-	if len(env.args) > 1 {
-		fmt.Println("submitted form is", env.args[1])
-		fmt.Println("found form", getSpriteForm(env.args[1]))
-		for _, form := range pkm.Forms {
-			fmt.Println("form:", pkm.Name, form)
-			if strings.ToLower(form) == strings.ToLower(getSpriteForm(env.args[1])) {
-				pkmForm = getSpriteForm(env.args[1])
-				fmt.Println("Found pkm form: %s", pkmForm)
-			}
+			title:   "Pokémon not found",
+			details: fmt.Sprintf("Pokémon %s could not be found.", pkmArgs.name),
 		}
 	}
 
 	var embedTitle string
-	if isShiny {
+	if pkmArgs.isShiny {
 		embedTitle = "Shiny "
 	}
-	if pkmForm != "" {
-		embedTitle += strings.Title(pkmForm) + " "
+	if pkmArgs.form != "" {
+		embedTitle += strings.Title(pkmArgs.form) + " "
 	}
 	embedTitle += pkm.Name
 
 	embed := b.newEmbed()
 	embed.Title = embedTitle
 	embed.Image = &discordgo.MessageEmbedImage{
-		URL:    pkm.spriteImage(isShiny, pkmForm),
+		URL:    pkm.spriteImage(pkmArgs.isShiny, pkmArgs.form),
 		Width:  300,
 		Height: 300,
 	}

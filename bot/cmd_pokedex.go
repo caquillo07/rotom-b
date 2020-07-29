@@ -20,15 +20,20 @@ func (b *Bot) handlePokedexCmd(
 		}
 	}
 
-	isShiny := strings.HasSuffix(env.args[0], "*") || strings.HasPrefix(env.args[0], "*")
-	cleanPkmName := strings.ReplaceAll(env.args[0], "*", "")
+	pkmArgs := parsePokemonCommand(env.args)
 
-	pkm, err := b.pokemonRepo.pokemon(strings.ToLower(cleanPkmName))
+	// if the name and shininess were not parsed properly, lets assume it
+	// follows the order on the help description.
+	if pkmArgs.name == "" {
+		pkmArgs.name = strings.ReplaceAll(env.args[0], "*", "")
+		pkmArgs.isShiny = strings.HasSuffix(env.args[0], "*") || strings.HasPrefix(env.args[0], "*")
+	}
+
+	pkm, err := b.pokemonRepo.pokemon(strings.ToLower(pkmArgs.name))
 	if err != nil {
 		return botError{
-			title: "Pokémon not found",
-			details: fmt.Sprintf("Pokémon %s could not be found.",
-				cleanPkmName),
+			title:   "Pokémon not found",
+			details: fmt.Sprintf("Pokémon %s could not be found.", pkmArgs.name),
 		}
 	}
 
@@ -70,15 +75,10 @@ func (b *Bot) handlePokedexCmd(
 	densSword := createJoinedPkmInfo("Sword", pkm.Dens.Sword)
 	densShield := createJoinedPkmInfo("Shield", pkm.Dens.Shield)
 
-	pkmForm := ""
-	if len(env.args) > 1 {
-		pkmForm = getSpriteForm(env.args[1])
-	}
-
 	embed := b.newEmbed()
-	embed.Title = fmt.Sprintf("%s Pokédex Info", strings.Title(cleanPkmName))
+	embed.Title = fmt.Sprintf("%s Pokédex Info", strings.Title(pkmArgs.name))
 	embed.Image = &discordgo.MessageEmbedImage{
-		URL:    pkm.spriteImage(isShiny, pkmForm),
+		URL:    pkm.spriteImage(pkmArgs.isShiny, pkmArgs.form),
 		Width:  300,
 		Height: 300,
 	}
