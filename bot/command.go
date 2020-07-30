@@ -210,7 +210,6 @@ func parsePokemonCommand(args []string) pokemonArg {
 			found = true
 			s = strings.ReplaceAll(s, "-", " ")
 			pkmArgs.name = strings.ReplaceAll(s, ".", "")
-			fmt.Println(arg, strings.Contains(arg, "*"))
 			pkmArgs.isShiny = strings.Contains(arg, "*")
 			break
 		}
@@ -232,8 +231,14 @@ func parsePokemonCommand(args []string) pokemonArg {
 			continue
 		}
 
-		// if we made it this far, none of the parsers caught it, just add it
-		// to the extra/unknown commands
+		// if we made it this far, none of the parsers caught it. Normally the
+		// first argument is assumed to be the Pokemon's name, so just add it
+		// to the name, and everything else add it to the extra/unknown field
+		if pkmArgs.name == "" {
+			pkmArgs.name = cleanArg
+			pkmArgs.isShiny = strings.Contains(arg, "*")
+			continue
+		}
 		pkmArgs.extras = append(pkmArgs.extras, arg)
 	}
 
