@@ -217,6 +217,32 @@ func parsePokemonCommand(args []string) pokemonArg {
 			continue
 		}
 
+		// we also have to check for special ' names because the sprites
+		// are named stupidly and inconsistently
+		for _, s := range []string{"farfetchd", "sirfetchd", "hooh"} {
+			if cleanArg != s {
+				continue // continue this inner loop
+			}
+
+			// found a special one, process as needed, then break
+			found = true
+			if s == "hooh" {
+				pkmArgs.name = "ho-oh"
+				pkmArgs.isShiny = strings.Contains(arg, "*")
+				break
+			}
+
+			// in this case, both pokemon end with a 'd' and its the only 'd' in
+			// the name. Lets just replace the 'd' and move on. This will NOT
+			// work if a new pokemon with a ' is added
+			pkmArgs.name = strings.ReplaceAll(s, "d", "'d")
+			pkmArgs.isShiny = strings.Contains(arg, "*")
+			break
+		}
+		if found {
+			continue
+		}
+
 		// last, lets see if we can find a den on the command. This is a "heavy"
 		// check since we are loop through an array inside another loop, so lets
 		// do it last.
