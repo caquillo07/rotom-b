@@ -210,7 +210,32 @@ func parsePokemonCommand(args []string) pokemonArg {
 			found = true
 			s = strings.ReplaceAll(s, "-", " ")
 			pkmArgs.name = strings.ReplaceAll(s, ".", "")
-			fmt.Println(arg, strings.Contains(arg, "*"))
+			pkmArgs.isShiny = strings.Contains(arg, "*")
+			break
+		}
+		if found {
+			continue
+		}
+
+		// we also have to check for special ' names because the sprites
+		// are named stupidly and inconsistently
+		for _, s := range []string{"farfetchd", "sirfetchd", "hooh"} {
+			if cleanArg != s {
+				continue // continue this inner loop
+			}
+
+			// found a special one, process as needed, then break
+			found = true
+			if s == "hooh" {
+				pkmArgs.name = "ho-oh"
+				pkmArgs.isShiny = strings.Contains(arg, "*")
+				break
+			}
+
+			// in this case, both pokemon end with a 'd' and its the only 'd' in
+			// the name. Lets just replace the 'd' and move on. This will NOT
+			// work if a new pokemon with a ' is added
+			pkmArgs.name = strings.ReplaceAll(s, "d", "'d")
 			pkmArgs.isShiny = strings.Contains(arg, "*")
 			break
 		}
@@ -232,8 +257,14 @@ func parsePokemonCommand(args []string) pokemonArg {
 			continue
 		}
 
-		// if we made it this far, none of the parsers caught it, just add it
-		// to the extra/unknown commands
+		// if we made it this far, none of the parsers caught it. Normally the
+		// first argument is assumed to be the Pokemon's name, so just add it
+		// to the name, and everything else add it to the extra/unknown field
+		if pkmArgs.name == "" {
+			pkmArgs.name = cleanArg
+			pkmArgs.isShiny = strings.Contains(arg, "*")
+			continue
+		}
 		pkmArgs.extras = append(pkmArgs.extras, arg)
 	}
 

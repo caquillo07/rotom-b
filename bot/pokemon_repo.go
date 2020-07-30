@@ -169,6 +169,10 @@ func (p *pokemon) spriteImage(shiny bool, form string) string {
 	if p.DexID == 439 || p.DexID == 122 || p.DexID == 866 {
 		cleanName = strings.ReplaceAll(p.Name, " ", "-")
 	}
+	// farfetch'd also has funny sprites _flipstable_
+	if p.DexID == 83 || p.DexID == 865 {
+		cleanName = strings.ReplaceAll(p.Name, "'", "")
+	}
 	return fmt.Sprintf(
 		"https://raphgg.github.io/den-bot/data/sprites/pokemon/%s/%s.gif",
 		fileType,
