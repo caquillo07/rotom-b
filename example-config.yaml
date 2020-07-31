@@ -5,7 +5,7 @@ discord:
   # status the bot will display on its user profile
   playingStatus: "Lurking in every channel!"
   # URL to be used to invite the bot to a server
-  inviteUrl: https://discordapp.com/oauth2/authorize?client_id=703830812772139138&scope=bot&permissions=281600
+  inviteUrl: https://discord.com/oauth2/authorize?client_id=726478988276531212&scope=bot&permissions=19456
   # Invite URL to support server, this will be displayed on the help command
   supportServerUrl: https://discord.gg/aZMUyf
 
