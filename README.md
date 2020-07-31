@@ -37,5 +37,12 @@ Command | Arguments | Description
 `$type` |  `<type>` | Shows info regarding Pokémon Types.
 ` $version`|  | Check which version of Rotom-B is running.
 
+## Screenshots
+What the bot looks like on Discord!
+
+![Den Pokémon Information](https://raw.githubusercontent.com/hypermilla/caquillo07.github.io/master/rotomb_screenshots/rotomB_pkmn_den.png)
+![Den Information from number](https://raw.githubusercontent.com/hypermilla/caquillo07.github.io/master/rotomb_screenshots/rotomB_den_number.png)
+![Catch Rates](https://raw.githubusercontent.com/hypermilla/caquillo07.github.io/master/rotomb_screenshots/rotomB_catchrates.png)
+![Pokémon Sprites](https://raw.githubusercontent.com/hypermilla/caquillo07.github.io/master/rotomb_screenshots/rotomB_pkmn_sprite.png)
 
 
