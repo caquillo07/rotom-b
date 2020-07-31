@@ -366,7 +366,7 @@ func getSpriteForm(form string) string {
 		"primal", "blade-form", "sunny", "rainy", "snowy", "sunshine",
 		"crowned", "starter", "black", "white", "f", "dusk-mane", "dawn-wings",
 		"megay", "megax", "gorging", "gulping", "dusk-form", "zen-mode",
-		"galarian-zen", "ultra":
+		"galarian-zen", "ultra", "origin-form":
 		return f
 	case "galar":
 		return "galarian"
@@ -386,6 +386,8 @@ func getSpriteForm(form string) string {
 		return "zen-mode"
 	case "galar-zen", "galar-zen-mode", "galarian-zen-mode":
 		return "galarian-zen"
+	case "origin", "origin-forme":
+		return "origin-form"
 	// this cases don't have special naming for sprites, so just fall
 	// through and return
 	case "aria", "m", "male", "disguised":
