@@ -44,7 +44,9 @@ Command | Arguments | Description
 - ...And we're accepting ideas! :) 
 
 ## Observations
-Please note we don't have an animated sprite for Gigantamax Inteleon and its Shiny version. This is the only Pokémon we're using a still image for a sprite. Pull requests adding it are much appreciated! 
+Please note we don't have an animated sprite for Gigantamax Inteleon and its Shiny version. This is the only Pokémon we're using a still image for a sprite. Pull requests adding it are much appreciated!
+
+All images are hosted in [this repository](https://github.com/caquillo07/rotom-b-data) 
 
 ## Screenshots
 What the bot looks like on Discord!
