@@ -39,13 +39,13 @@ func (b *Bot) handleBallCmd(
 	)
 	embed.Thumbnail = &discordgo.MessageEmbedThumbnail{
 		URL: fmt.Sprintf(
-			"https://raphgg.github.io/den-bot/data/sprites/balls/%s.png",
+			"https://raw.githubusercontent.com/caquillo07/rotom-b-data/master/sprites/balls/%s.png",
 			ball.ID,
 		),
 	}
 	embed.Image = &discordgo.MessageEmbedImage{
 		URL: fmt.Sprintf(
-			"https://raphgg.github.io/den-bot/data/sprites/balls/%s.gif?cache=42069",
+			"https://raw.githubusercontent.com/caquillo07/rotom-b-data/master/sprites/balls/%s.gif?cache=42069",
 			ball.ID,
 		),
 	}
