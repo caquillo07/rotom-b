@@ -13,6 +13,7 @@ type command struct {
 	helpText  string
 	usage     string
 	example   string
+	alias     string
 	adminOnly bool
 }
 
@@ -113,6 +114,14 @@ The confidence level will display when this calculations fall under the rounding
 		example:   b.addCmdPrefix("{{p}}version"),
 		adminOnly: false,
 	}
+
+	// Alias for pre-established commands
+	b.commands["commands"] = &command{alias: "commands"}
+	b.commands["pokemon"] = &command{alias: "pokedex"}
+	b.commands["image"] = &command{alias: "sprite"}
+	b.commands["dens"] = &command{alias: "den"}
+	b.commands["s"] = &command{alias: "sprite"}
+	b.commands["d"] = &command{alias: "den"}
 }
 
 // addCmdPrefix replaces all cases of {{p}} with the actual
