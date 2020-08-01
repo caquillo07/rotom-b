@@ -3918,8 +3918,8 @@
     "eggGroup2": "Water 1",
     "evolutions": [],
     "forms": [
-	  "Mega",
-	  "Galarian"
+      "Mega",
+      "Galarian"
     ],
     "genderRatio": "50% ♂ : 50% ♀",
     "generation": "RedBlue",
@@ -39370,7 +39370,7 @@
       "abilityH": null
     },
     "baseStats": {
-	  "hp": 60,
+      "hp": 60,
       "atk": 90,
       "def": 60,
       "spA": 53,
@@ -39387,63 +39387,59 @@
     "eggGroup1": "Undiscovered",
     "eggGroup2": null,
     "evolutions": [],
+    "forms": [],
+    "genderRatio": "11.86% ⚲ : 88.14% ♂",
+    "generation": "SwordShield",
+    "height": 0.6,
+    "name": "Kubfu",
+    "type1": "Fighting",
+    "type2": null,
+    "weight": 12.0
+  },
+  {
+    "abilities": {
+      "ability1": "Unseen Fist",
+      "ability2": null,
+      "abilityH": null
+    },
+    "baseStats": {
+      "hp": 100,
+      "atk": 130,
+      "def": 100,
+      "spA": 63,
+      "spD": 60,
+      "spe": 97,
+      "tot": 550
+    },
+    "catchRate": 3,
+    "dens": {
+      "shield": [],
+      "sword": []
+    },
+    "dexId": 892,
+    "eggGroup1": "Undiscovered",
+    "eggGroup2": null,
+    "evolutions": [],
     "forms": [
-      ""
+      "Single Strike Style",
+      "Single Strike Style Gigantamax"
     ],
     "genderRatio": "11.86% ⚲ : 88.14% ♂",
     "generation": "SwordShield",
-    "height": 100,
-    "name": "Kubfu",
-    "type1": "Fighting",
-    "type2": "",
-    "weight": 0
-  },
-  {
-    "abilities": {
-      "ability1": "Single Strike Style",
-      "ability2": null,
-      "abilityH": null
-    },
-    "baseStats": {
-	  "hp": 100,
-      "atk": 130,
-      "def": 100,
-      "spA": 63,
-      "spD": 60,
-      "spe": 97,
-      "tot": 550
-    },
-    "catchRate": 3,
-    "dens": {
-      "shield": [],
-      "sword": []
-    },
-    "dexId": 891,
-    "eggGroup1": "Undiscovered",
-    "eggGroup2": null,
-    "evolutions": [],
-    "forms": [
-	  "single",
-	  "rapid",
-	  "rapid-gmax",
-	  "single-gmax"
-    ],
-    "genderRatio": "12.5% ⚲ : 87.5% ♂",
-    "generation": "SwordShield",
-    "height": 100,
-    "name": "Urshifu",
+    "height": 1.9,
+    "name": "Urshifu Single Strike Style",
     "type1": "Fighting",
     "type2": "Dark",
-    "weight": 0
+    "weight": 105.0
   },
   {
     "abilities": {
-      "ability1": "Rapid Strike Style",
+      "ability1": "Unseen Fist",
       "ability2": null,
       "abilityH": null
     },
     "baseStats": {
-	  "hp": 100,
+      "hp": 100,
       "atk": 130,
       "def": 100,
       "spA": 63,
@@ -39456,20 +39452,20 @@
       "shield": [],
       "sword": []
     },
-    "dexId": 891,
+    "dexId": 892,
     "eggGroup1": "Undiscovered",
     "eggGroup2": null,
     "evolutions": [],
     "forms": [
-	  "Single Strike",
-	  "Rapid Strike"
+      "Rapid Strike Style",
+      "Rapid Strike Style Gigantamax"
     ],
-    "genderRatio": "12.5% ⚲ : 87.5% ♂",
+    "genderRatio": "11.86% ⚲ : 88.14% ♂",
     "generation": "SwordShield",
-    "height": 100,
-    "name": "Urshifu Rapid Strike",
+    "height": 1.9,
+    "name": "Urshifu Rapid Strike Style",
     "type1": "Fighting",
     "type2": "Water",
-    "weight": 0
+    "weight": 105.0
   }
 ]
