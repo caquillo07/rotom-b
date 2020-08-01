@@ -37,14 +37,19 @@ func (b *Bot) handlePokedexCmd(
 		}
 	}
 
+	urlPkmName := pkm.Name
+	if pkm.DexID == 892 {
+		urlPkmName = "Urshifu"
+	}
+
 	externalPokedexLinks := fmt.Sprintf(
 		"[Bulbapedia Entry](https://bulbapedia.bulbagarden.net/wiki/%s_(Pokémon))\n",
-		strings.Title(pkm.Name),
+		strings.ToLower(urlPkmName),
 	)
 	if len(pkm.Dens.Shield) > 0 || len(pkm.Dens.Sword) > 0 || pkm.Generation == "SwordShield" {
 		externalPokedexLinks += fmt.Sprintf(
 			"[Serebii Sword & Shield Pokédex](https://serebii.net/pokedex-swsh/%s/)",
-			strings.ToLower(pkm.Name),
+			strings.ToLower(urlPkmName),
 		)
 	} else {
 		externalPokedexLinks += fmt.Sprintf(
@@ -85,7 +90,7 @@ func (b *Bot) handlePokedexCmd(
 
 	embed.URL = fmt.Sprintf(
 		"https://bulbapedia.bulbagarden.net/wiki/%s_(Pokémon)",
-		strings.ToLower(pkm.Name),
+		strings.ToLower(urlPkmName),
 	)
 
 	embed.Fields = []*discordgo.MessageEmbedField{

@@ -165,13 +165,22 @@ func (p *pokemon) spriteImage(shiny bool, form string) string {
 	}
 
 	cleanName := strings.ReplaceAll(p.Name, "-", "")
+
 	// the dumb mr mime line has special sprite names. I. hate. this.
 	if p.DexID == 439 || p.DexID == 122 || p.DexID == 866 {
 		cleanName = strings.ReplaceAll(p.Name, " ", "-")
 	}
+
 	// farfetch'd also has funny sprites _flipstable_
 	if p.DexID == 83 || p.DexID == 865 {
 		cleanName = strings.ReplaceAll(p.Name, "'", "")
+	}
+
+	// urshifu be special too, you thought it ended with farfetch'd? no sir!
+	// everything is stupid
+	if p.DexID == 892 {
+		cleanName = strings.ReplaceAll(p.Name, " ", "-")
+		cleanName = strings.ReplaceAll(cleanName, "-Strike-Style", "")
 	}
 	return fmt.Sprintf(
 		"https://raw.githubusercontent.com/caquillo07/rotom-b-data/master/sprites/pokemon/%s/%s.gif",

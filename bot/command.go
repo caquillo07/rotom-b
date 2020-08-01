@@ -198,6 +198,35 @@ func parsePokemonCommand(args []string) pokemonArg {
 			// end
 		}
 
+		// here we check if the pokemon we are asking for is Urshifu. This
+		// pokemon has two forms, the which are 3 words long so we have to
+		// threat it a bit differently by only checking the first one, and
+		// manually adding the rest of the name.
+		if cleanArg == "urshifu" {
+
+			// first check if the form is  before the name in the command.
+			if i != 0 && (args[i-1] == "single" || args[i-1] == "rapid") {
+				pkmArgs.name = fmt.Sprintf("urshifu %s strike style", args[i-1])
+				pkmArgs.isShiny = strings.Contains(arg, "*")
+				continue
+			}
+
+			// if we made it this far, it means the user probably put the form
+			// after the name. Lets check if the next argument is the form, if
+			// not then we will default to single strike form.
+			if i != len(args)-1 && (args[i+1] == "single" || args[i+1] == "rapid") {
+				pkmArgs.name = fmt.Sprintf("urshifu %s strike style", args[i+1])
+				pkmArgs.isShiny = strings.Contains(arg, "*")
+				skipIndex = true // no need to process next arg
+				continue
+			}
+
+			// we got no form, default to single
+			pkmArgs.name = fmt.Sprintf("urshifu single strike style")
+			pkmArgs.isShiny = strings.Contains(arg, "*")
+			continue
+		}
+
 		// we have to check for special hyphenated names because the sprites
 		// are named stupidly and inconsistently
 		var found bool
