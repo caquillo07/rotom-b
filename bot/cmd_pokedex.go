@@ -118,7 +118,7 @@ func (b *Bot) handlePokedexCmd(
 			Name: "Pokémon Misc. Info",
 			Value: fmt.Sprintf(
 				"Gender Ratio: `%s`\n"+
-					"Height / Weight: `%s / %s`\n"+
+					"Height / Weight: `%sm / %skg`\n"+
 					"Catch Rate: `%d`\n"+
 					"Generation: `%s`\n"+
 					"Egg Groups: `%s`\n"+

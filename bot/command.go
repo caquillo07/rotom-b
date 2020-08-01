@@ -247,7 +247,7 @@ func parsePokemonCommand(args []string) pokemonArg {
 		// check since we are loop through an array inside another loop, so lets
 		// do it last.
 		for _, b := range ballNames {
-			if strings.Contains(arg, b) {
+			if strings.HasPrefix(arg, b) {
 				pkmArgs.ball = arg
 				found = true
 				break // we done, break the inner loop
