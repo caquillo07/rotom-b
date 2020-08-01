@@ -37,6 +37,17 @@ Command | Arguments | Description
 `$type` |  `<type>` | Shows info regarding Pokémon Types.
 ` $version`|  | Check which version of Rotom-B is running.
 
+## Upcoming Features
+- Persistency, including a database for all the data
+- Custom settings
+- Updated Sword and Shield sprites for all Pokémon
+- ...And we're accepting ideas! :) 
+
+## Observations
+Please note we don't have an animated sprite for Gigantamax Inteleon and its Shiny version. This is the only Pokémon we're using a still image for a sprite. Pull requests adding it are much appreciated!
+
+All images are hosted in [this repository](https://github.com/caquillo07/rotom-b-data) 
+
 ## Screenshots
 What the bot looks like on Discord!
 

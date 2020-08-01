@@ -16,7 +16,7 @@ func (b *Bot) handleNatureCmd(
 	if len(env.args) == 0 {
 		embed.Title = "Pokémon Natures Chart (from Bulbapedia)"
 		embed.Image = &discordgo.MessageEmbedImage{
-			URL: "https://raphgg.github.io/den-bot/data/icons/natures.PNG",
+			URL: "https://raw.githubusercontent.com/caquillo07/rotom-b-data/master/icons/natures.PNG",
 		}
 		_, err := s.ChannelMessageSendEmbed(m.ChannelID, embed)
 		return err

@@ -174,7 +174,7 @@ func (p *pokemon) spriteImage(shiny bool, form string) string {
 		cleanName = strings.ReplaceAll(p.Name, "'", "")
 	}
 	return fmt.Sprintf(
-		"https://raphgg.github.io/den-bot/data/sprites/pokemon/%s/%s.gif",
+		"https://raw.githubusercontent.com/caquillo07/rotom-b-data/master/sprites/pokemon/%s/%s.gif",
 		fileType,
 		spriteFileName(strings.ToLower(cleanName), strings.ToLower(form)),
 	)
