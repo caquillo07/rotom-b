@@ -3,6 +3,7 @@ package bot
 import (
 	"fmt"
 	"sort"
+	"strings"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -29,13 +30,15 @@ func (b *Bot) handleHelpCmd(
 	}
 	sort.Strings(commandNames)
 
-	commandFields := make([]*discordgo.MessageEmbedField, len(commandNames))
-	for i, name := range commandNames {
+	commandFields := make([]*discordgo.MessageEmbedField, 0)
+	for _, name := range commandNames {
 		cmd := b.commands[name]
-		commandFields[i] = &discordgo.MessageEmbedField{
-			Name:   cmd.usage,
-			Value:  cmd.helpText,
-			Inline: false,
+		if cmd.helpText != "" {
+			commandFields = append(commandFields, &discordgo.MessageEmbedField{
+				Name:   cmd.usage,
+				Value:  cmd.helpText,
+				Inline: false,
+			})
 		}
 	}
 
@@ -89,6 +92,13 @@ func (b *Bot) handleCommandUsage(
 		return err
 	}
 
+	aliases := make([]string, 0)
+	for key := range b.commands {
+		if b.commands[key].alias != "" && b.commands[key].alias == env.args[0] {
+			aliases = append(aliases, fmt.Sprintf("%s%s", b.config.Bot.Prefix, key))
+		}
+	}
+
 	fields := make([]*discordgo.MessageEmbedField, 0)
 	fields = append(fields, &discordgo.MessageEmbedField{
 		Name:   "Usage",
@@ -107,6 +117,15 @@ func (b *Bot) handleCommandUsage(
 		Value:  fmt.Sprintf("Admin only: %v", command.adminOnly),
 		Inline: true,
 	})
+
+	if len(aliases) > 0 {
+		aliasesTxt := "`" + strings.Join(aliases, ", ") + "`"
+		fields = append(fields, &discordgo.MessageEmbedField{
+			Name:   "Aliases",
+			Value:  aliasesTxt,
+			Inline: true,
+		})
+	}
 
 	embed := b.newEmbed()
 	embed.Title = "Help for **" + env.args[0] + "**"

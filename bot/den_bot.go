@@ -136,6 +136,9 @@ func (b *Bot) handleMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 		// ignoring unknown commands
 		return
 	}
+	if botCmd.alias != "" {
+		botCmd = b.commands[botCmd.alias]
+	}
 
 	// Send this off on its own go routine to be able to handle many of them
 	// at once
