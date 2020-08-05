@@ -7,6 +7,8 @@ import (
 
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
+
+	"github.com/caquillo07/rotom-bot/database"
 )
 
 type Config struct {
@@ -22,6 +24,9 @@ type Config struct {
 		EmbedColor      int
 		ErrorEmbedColor int
 	}
+
+	// Config provides database configuration
+	Database database.Config
 }
 
 // LoadConfig loads configuration from the viper instance.

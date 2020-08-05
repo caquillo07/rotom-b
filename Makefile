@@ -19,6 +19,9 @@ LDFLAGS = -ldflags "-X ${METRICS_IMPORT_PATH}.Version=${VERSION} -X ${METRICS_IM
 dev-reload:
 	air -c .air.conf
 
+migrate-dev:
+	go run main.go migrate --config example-config.yaml --dev-log
+
 linux:
 	GOOS=linux GOARCH=${GOARCH} go build ${LDFLAGS} -o ${BINARY}-linux-${GOARCH} .
 

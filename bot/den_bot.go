@@ -14,6 +14,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/caquillo07/rotom-bot/conf"
+	"github.com/caquillo07/rotom-bot/database"
 )
 
 type Bot struct {
@@ -35,8 +36,14 @@ func NewBot(conf conf.Config, session *discordgo.Session) *Bot {
 func (b *Bot) Run() error {
 	logger := zap.L()
 
+	// Open connection to DB before anything else
+	db, err := database.Open(b.config.Database)
+	if err != nil {
+		return err
+	}
+
 	// Initialize the repo
-	repo, err := newPokemonRepo()
+	repo, err := newPokemonRepo(db)
 	if err != nil {
 		return err
 	}

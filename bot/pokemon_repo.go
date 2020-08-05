@@ -8,6 +8,8 @@ import (
 	"os"
 	"sort"
 	"strings"
+
+	"github.com/jinzhu/gorm"
 )
 
 const (
@@ -24,6 +26,7 @@ var (
 )
 
 type pokemonRepo struct {
+	db       *gorm.DB
 	dens     map[string]*den
 	balls    map[string]*pokeBall
 	pokemons map[string]*pokemon
@@ -96,7 +99,7 @@ type pokemonType struct {
 // newPokemonRepo creates a new instance of the pokemonRepo
 // This method will load up the json files inside the /data
 // folder at the project's root, and create maps for quick look up.
-func newPokemonRepo() (*pokemonRepo, error) {
+func newPokemonRepo(db *gorm.DB) (*pokemonRepo, error) {
 	// load all the json files, starting by dens
 	dens := make([]*den, 0)
 	if err := loadJSONInto("data/dens.json", &dens); err != nil {

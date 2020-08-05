@@ -27,3 +27,8 @@ bot:
   # This value defaults to "0" if left blank, which is the hex value of black
   # (0x000000)
   errorEmbedColor: 0xb40000
+
+database:
+  log: true
+  driver: postgres
+  url: postgresql://postgres:root@localhost:5432/rotom_b?sslmode=disable
