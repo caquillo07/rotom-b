@@ -39467,5 +39467,40 @@
     "type1": "Fighting",
     "type2": "Water",
     "weight": 105.0
+  },
+  {
+    "abilities": {
+      "ability1": "Leaf Guard",
+      "ability2": null,
+      "abilityH": null
+    },
+    "baseStats": {
+      "hp": 105,
+      "atk": 120,
+      "def": 105,
+      "spA": 70,
+      "spD": 95,
+      "spe": 105,
+      "tot": 600
+    },
+    "catchRate": 3,
+    "dens": {
+      "shield": [],
+      "sword": []
+    },
+    "dexId": 893,
+    "eggGroup1": "Undiscovered",
+    "eggGroup2": null,
+    "evolutions": [],
+    "forms": [
+      "Dada"
+    ],
+    "genderRatio": "Genderless",
+    "generation": "SwordShield",
+    "height": 1.8,
+    "name": "Zarude",
+    "type1": "Grass",
+    "type2": "Dark",
+    "weight": 153.4
   }
 ]
