@@ -378,7 +378,7 @@ func getSpriteForm(form string) string {
 		"primal", "blade-form", "sunny", "rainy", "snowy", "sunshine",
 		"crowned", "starter", "black", "white", "f", "dusk-mane", "dawn-wings",
 		"megay", "megax", "gorging", "gulping", "dusk-form", "zen-mode",
-		"galarian-zen", "ultra", "origin-form":
+		"galarian-zen", "ultra", "origin-form", "dada":
 		return f
 	case "galar":
 		return "galarian"
