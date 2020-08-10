@@ -1,0 +1,27 @@
+# TODO(hector): NEEDS WORK - postgres starts too damn slow
+#  https://hub.docker.com/r/jbergknoff/postgresql-client/dockerfile
+
+version: "3"
+services:
+  db:
+    image: postgres:12
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - bot_worker
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+  rotomb:
+    build: .
+    networks:
+      - bot_worker
+    depends_on:
+      - db
+
+networks:
+  bot_worker:
+
+volumes:
+  db-data:

@@ -14,12 +14,13 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/caquillo07/rotom-bot/conf"
+	"github.com/caquillo07/rotom-bot/repository"
 )
 
 type Bot struct {
 	config         conf.Config
 	session        *discordgo.Session
-	pokemonRepo    *pokemonRepo
+	repository     *repository.Repository
 	commands       map[string]*command
 	requestsServed uint64
 }
@@ -35,12 +36,18 @@ func NewBot(conf conf.Config, session *discordgo.Session) *Bot {
 func (b *Bot) Run() error {
 	logger := zap.L()
 
-	// Initialize the repo
-	repo, err := newPokemonRepo()
+	// Open connection to DB before anything else
+	db, err := repository.Open(b.config.Database)
 	if err != nil {
 		return err
 	}
-	b.pokemonRepo = repo
+
+	// Initialize the repo
+	repo, err := repository.NewRepository(db)
+	if err != nil {
+		return err
+	}
+	b.repository = repo
 
 	// Create all the commands on the bot
 	b.initCommands()
@@ -79,14 +86,20 @@ func (b *Bot) ready(s *discordgo.Session, event *discordgo.Ready) {
 	}
 
 	guilds, err := b.session.UserGuilds(0, "", "")
-	fmt.Println("Total guilds Rotom-B is on: ", len(guilds))
+	if err != nil {
+		zap.L().Error("error getting guild counts", zap.Error(err))
+		return
+	}
+	zap.L().Info("Total guilds Rotom-B is on", zap.Int("guild_count", len(guilds)))
 
-	//TODO: add dbl API token here
-	dbl := dblgo.NewDBLApi("bot dbl api token")
+	if !b.config.DBL.Enable {
+		return
+	}
 
+	dbl := dblgo.NewDBLApi(b.config.DBL.Token)
 	err = dbl.PostStatsSimple(len(guilds))
 	if err != nil {
-		fmt.Println(err)
+		zap.L().Error("error posting user count to DBL", zap.Error(err))
 	}
 }
 
@@ -100,23 +113,56 @@ func (b *Bot) handleMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	// If the message does not have the required prefix, exit as well
-	if !strings.HasPrefix(m.Content, b.config.Bot.Prefix) {
-		return
-	}
+	// Lets start by fetching the guild's config and and checking if the message
+	// is for us.
 	logger := zap.L()
 	channel, err := s.State.Channel(m.ChannelID)
 	if err != nil {
-		logger.Error("error retrieving the channel", zap.Error(err))
+		logger.Error(
+			"error retrieving the channel",
+			zap.Error(err),
+			zap.String("channel_id", channel.ID),
+		)
 		return
 	}
+
+	guild, err := s.State.Guild(channel.GuildID)
+	if err != nil {
+		logger.Error(
+			"error retrieving the guild",
+			zap.Error(err),
+			zap.String("guild_id", channel.GuildID),
+		)
+		return
+	}
+
+	guildSettings, err := b.getOrCreateGuildSettings(guild)
+	if err != nil {
+		logger.Error(
+			"error retrieving the guild's config",
+			zap.Error(err),
+			zap.String("guild_name", guild.Name),
+			zap.String("guild_id", guild.ID),
+		)
+	}
+
+	prefix := b.config.Bot.Prefix
+	if pre := guildSettings.BotPrefix; pre != "" {
+		prefix = pre
+	}
+
+	// If the message does not have the required prefix, exit as well
+	if !strings.HasPrefix(m.Content, prefix) {
+		return
+	}
+
 	// Update the requests served, so we can get new ID for the next request
 	reqID := atomic.AddUint64(&b.requestsServed, 1)
 	logger.Info(
 		"processing command",
 		zap.Uint64("request_id", reqID),
 		zap.String("command", m.Content),
-		zap.String("user", m.Author.Username),
+		zap.String("user", m.Author.String()),
 		zap.String("channel", channel.Name),
 	)
 
@@ -129,7 +175,7 @@ func (b *Bot) handleMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}(reqID)
 
 	// To not have to check for the prefix on every single command
-	cleanedMsg := strings.TrimPrefix(m.Content, b.config.Bot.Prefix)
+	cleanedMsg := strings.TrimPrefix(m.Content, prefix)
 	cmdParts := strings.Split(cleanedMsg, " ")
 	botCmd, ok := b.commands[cmdParts[0]]
 	if !ok {
@@ -143,9 +189,35 @@ func (b *Bot) handleMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 	// Send this off on its own go routine to be able to handle many of them
 	// at once
 	go func(reqID uint64) {
+		// before anything else, lets make sure the user has permissions
+		// to perform this command
+		if botCmd.adminOnly {
+			isAdmin, err := userIsAdmin(s, guild.ID, m.Author.ID)
+			if err != nil {
+				logger.Error(
+					"failed to check user's admin status",
+					zap.String("command", cleanedMsg),
+					zap.Uint64("request_id", reqID),
+					zap.Error(err),
+				)
+
+				b.handleCommandError(s, m, reqID, err)
+				return
+			}
+			if !isAdmin {
+				logger.Info(
+					m.Author.String() + "user doesn't have admin role",
+					zap.String("command", cleanedMsg),
+					zap.String("user", m.Author.String()),
+				)
+				return
+			}
+		}
+
 		env := &commandEnvironment{
-			command: cmdParts[0],
 			args:    cmdParts[1:],
+			command: cmdParts[0],
+			commandPrefix: prefix,
 		}
 		if err := botCmd.execute(s, env, m.Message); err != nil {
 			logger.Error(
@@ -196,4 +268,51 @@ func (b *Bot) handlePanic(panic interface{}, s *discordgo.Session, m *discordgo.
 	)
 
 	b.handleCommandError(s, m, reqID, errors.New("internal error"))
+}
+
+func (b *Bot) getOrCreateGuildSettings(guild *discordgo.Guild) (*repository.GuildSettings, error) {
+	gc, err := b.repository.GetGuildSettings(guild.ID)
+	if err != nil && err != repository.ErrRecordNotFound {
+		return nil, err
+	}
+
+	if gc != nil {
+		return gc, nil
+	}
+
+	// not found, then create
+	gc = &repository.GuildSettings{
+		Name:      guild.Name,
+		DiscordID: guild.ID,
+		BotPrefix: b.config.Bot.Prefix,
+	}
+	if err := b.repository.CreateGuildSettings(gc); err != nil {
+		return nil, err
+	}
+	return gc, nil
+}
+
+func userIsAdmin(
+	s *discordgo.Session,
+	guildID, userID string,
+) (bool, error) {
+	member, err := s.State.Member(guildID, userID)
+	if err != nil {
+		// ok to ignore this error since its just a not found error on the
+		// local state
+		if member, err = s.GuildMember(guildID, userID); err != nil {
+			return false, err
+		}
+	}
+
+	for _, roleID := range member.Roles {
+		role, err := s.State.Role(guildID, roleID)
+		if err != nil {
+			return false, err
+		}
+		if role.Permissions&discordgo.PermissionAdministrator != 0 {
+			return true, nil
+		}
+	}
+	return false, nil
 }

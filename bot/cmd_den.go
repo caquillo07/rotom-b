@@ -5,6 +5,8 @@ import (
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
+
+	"github.com/caquillo07/rotom-bot/repository"
 )
 
 func (b *Bot) handleDenCmd(
@@ -47,7 +49,7 @@ func (b *Bot) handleDenCmd(
 }
 
 func (b *Bot) getDensFromPokemon(pkmnName, form string, isShiny bool) (*discordgo.MessageEmbed, error) {
-	pkm, err := b.pokemonRepo.pokemon(pkmnName)
+	pkm, err := b.repository.Pokemon(pkmnName)
 	if err != nil {
 		return nil, botError{
 			title: "Pokémon not found",
@@ -76,7 +78,7 @@ func (b *Bot) getDensFromPokemon(pkmnName, form string, isShiny bool) (*discordg
 
 	// Sword
 	for _, d := range pkm.Dens.Sword {
-		den, err := b.pokemonRepo.den(d)
+		den, err := b.repository.Den(d)
 		if err != nil {
 			return nil, nil
 		}
@@ -90,7 +92,7 @@ func (b *Bot) getDensFromPokemon(pkmnName, form string, isShiny bool) (*discordg
 
 	// Shield
 	for _, d := range pkm.Dens.Shield {
-		den, err := b.pokemonRepo.den(d)
+		den, err := b.repository.Den(d)
 		if err != nil {
 			return nil, nil
 		}
@@ -105,7 +107,7 @@ func (b *Bot) getDensFromPokemon(pkmnName, form string, isShiny bool) (*discordg
 	embed := b.newEmbed()
 	embed.Title = pkm.Name + " is in the following Dens:"
 	embed.Thumbnail = &discordgo.MessageEmbedThumbnail{
-		URL:    pkm.spriteImage(isShiny, form),
+		URL:    pkm.SpriteImage(isShiny, form),
 		Width:  150,
 		Height: 150,
 	}
@@ -125,7 +127,7 @@ func (b *Bot) getDensFromPokemon(pkmnName, form string, isShiny bool) (*discordg
 	return embed, nil
 }
 
-func isDenPokemonHA(pkmName string, gameDens []*denPokemon) bool {
+func isDenPokemonHA(pkmName string, gameDens []*repository.DenPokemon) bool {
 	for _, gd := range gameDens {
 		if pkmName != gd.Name || !strings.HasPrefix(gd.Ability, "Hidden") {
 			continue
@@ -172,7 +174,7 @@ func getDensText(densStandard []string, densHA []string) string {
 
 func (b *Bot) getDenFromNumber(denNumber string) (*discordgo.MessageEmbed, error) {
 
-	den, err := b.pokemonRepo.den(denNumber)
+	den, err := b.repository.Den(denNumber)
 	if err != nil {
 		return nil, botError{
 			title: "Den number not found",

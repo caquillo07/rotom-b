@@ -29,7 +29,7 @@ func (b *Bot) handlePokedexCmd(
 		pkmArgs.isShiny = strings.HasSuffix(env.args[0], "*") || strings.HasPrefix(env.args[0], "*")
 	}
 
-	pkm, err := b.pokemonRepo.pokemon(strings.ToLower(pkmArgs.name))
+	pkm, err := b.repository.Pokemon(strings.ToLower(pkmArgs.name))
 	if err != nil {
 		return botError{
 			title:   "Pokémon not found",
@@ -83,7 +83,7 @@ func (b *Bot) handlePokedexCmd(
 	embed := b.newEmbed()
 	embed.Title = fmt.Sprintf("%s Pokédex Info", strings.Title(pkmArgs.name))
 	embed.Image = &discordgo.MessageEmbedImage{
-		URL:    pkm.spriteImage(pkmArgs.isShiny, pkmArgs.form),
+		URL:    pkm.SpriteImage(pkmArgs.isShiny, pkmArgs.form),
 		Width:  300,
 		Height: 300,
 	}
