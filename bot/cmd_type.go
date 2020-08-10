@@ -21,7 +21,7 @@ func (b *Bot) handleTypeCmd(
 	}
 
 	pkmType := env.args[0]
-	typeInfo, err := b.pokemonRepo.pokemonType(strings.ToLower(pkmType))
+	typeInfo, err := b.repository.PokemonType(strings.ToLower(pkmType))
 	if err != nil {
 		return botError{
 			title: "Type not found",

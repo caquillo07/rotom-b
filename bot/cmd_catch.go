@@ -5,6 +5,8 @@ import (
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
+
+	"github.com/caquillo07/rotom-bot/repository"
 )
 
 const (
@@ -34,7 +36,7 @@ func (b *Bot) handleCatchCmd(
 		pkmArgs.isShiny = strings.HasSuffix(env.args[0], "*") || strings.HasPrefix(env.args[0], "*")
 	}
 
-	pkm, err := b.pokemonRepo.pokemon(pkmArgs.name)
+	pkm, err := b.repository.Pokemon(pkmArgs.name)
 	if err != nil {
 		return botError{
 			title:   "Not Found",
@@ -42,8 +44,8 @@ func (b *Bot) handleCatchCmd(
 		}
 	}
 
-	ball, err := b.pokemonRepo.ball(pkmArgs.ball)
-	if err != nil && err != errBallDoesNotExist {
+	ball, err := b.repository.Ball(pkmArgs.ball)
+	if err != nil && err != repository.ErrBallDoesNotExist {
 		return err
 	}
 
@@ -75,14 +77,14 @@ func (b *Bot) handleCatchCmd(
 }
 
 func (b *Bot) getPokemonCatchRate(
-	pkm *pokemon,
-	ball *pokeBall,
+	pkm *repository.Pokemon,
+	ball *repository.PokeBall,
 	form string,
 	shiny bool,
 ) (*discordgo.MessageEmbed, error) {
-	form = getSpriteForm(form)
+	form = repository.GetSpriteForm(form)
 	name := pkm.Name
-	isGmax := form == gigantamax
+	isGmax := form == repository.Gigantamax
 	if isGmax {
 		name = "G-Max " + name
 	}
@@ -91,12 +93,12 @@ func (b *Bot) getPokemonCatchRate(
 	embed.Title = fmt.Sprintf("%s catch probability", name)
 	embed.Color = b.getPokemonColor(pkm.Type1)
 	embed.Image = &discordgo.MessageEmbedImage{
-		URL: pkm.spriteImage(shiny, form),
+		URL: pkm.SpriteImage(shiny, form),
 	}
 
-	ball.Modifier = ball.catchModifier(pkm)
-	lowerCatchProb, lowerConfidence := pkm.captureRate(ball, 30, 0, isGmax, false)
-	higherCatchProb, highConfidence := pkm.captureRate(ball, 70, 31, isGmax, false)
+	ball.Modifier = ball.CatchModifier(pkm)
+	lowerCatchProb, lowerConfidence := pkm.CaptureRate(ball, 30, 0, isGmax, false)
+	higherCatchProb, highConfidence := pkm.CaptureRate(ball, 70, 31, isGmax, false)
 	description := fmt.Sprintf("%.2f%%", lowerCatchProb)
 	if lowerCatchProb != higherCatchProb {
 		description += fmt.Sprintf(" ~ %.2f%%", higherCatchProb)
@@ -119,10 +121,10 @@ func (b *Bot) getPokemonCatchRate(
 	return embed, nil
 }
 
-func (b *Bot) getPokemonTopFourBalls(pkm *pokemon, form string, shiny bool) (*discordgo.MessageEmbed, error) {
-	form = getSpriteForm(form)
+func (b *Bot) getPokemonTopFourBalls(pkm *repository.Pokemon, form string, shiny bool) (*discordgo.MessageEmbed, error) {
+	form = repository.GetSpriteForm(form)
 	name := pkm.Name
-	isGmax := form == gigantamax
+	isGmax := form == repository.Gigantamax
 	if isGmax {
 		name = "G-Max " + name
 	}
@@ -132,13 +134,13 @@ func (b *Bot) getPokemonTopFourBalls(pkm *pokemon, form string, shiny bool) (*di
 	embed.Description = fmt.Sprintf("The best balls for catching %s are:", name)
 	embed.Color = b.getPokemonColor(pkm.Type1)
 	embed.Image = &discordgo.MessageEmbedImage{
-		URL: pkm.spriteImage(shiny, form),
+		URL: pkm.SpriteImage(shiny, form),
 	}
 
 	topFourDesp := make([]string, 0)
 	for _, pb := range b.getBestBallsForPokemon(pkm) {
-		lowerCatchProb, _ := pkm.captureRate(pb, 30, 0, isGmax, false)
-		higherCatchProb, _ := pkm.captureRate(pb, 70, 31, isGmax, false)
+		lowerCatchProb, _ := pkm.CaptureRate(pb, 30, 0, isGmax, false)
+		higherCatchProb, _ := pkm.CaptureRate(pb, 70, 31, isGmax, false)
 		description := fmt.Sprintf(
 			"%s: `%.2f%%",
 			pb.Name,
@@ -151,13 +153,13 @@ func (b *Bot) getPokemonTopFourBalls(pkm *pokemon, form string, shiny bool) (*di
 		topFourDesp = append(topFourDesp, description)
 	}
 
-	pkBall, err := b.pokemonRepo.ball("poke ball")
+	pkBall, err := b.repository.Ball("poke ball")
 	if err != nil {
 		return nil, err
 	}
 
-	stdLowerCatchProb, _ := pkm.captureRate(pkBall, 30, 0, isGmax, false)
-	stdHigherCatchProb, _ := pkm.captureRate(pkBall, 70, 31, isGmax, false)
+	stdLowerCatchProb, _ := pkm.CaptureRate(pkBall, 30, 0, isGmax, false)
+	stdHigherCatchProb, _ := pkm.CaptureRate(pkBall, 70, 31, isGmax, false)
 	standardDescription := fmt.Sprintf("%.2f%%", stdLowerCatchProb)
 	if stdLowerCatchProb != stdHigherCatchProb {
 		standardDescription += fmt.Sprintf(" ~ %.2f%%", stdHigherCatchProb)
@@ -180,9 +182,9 @@ func (b *Bot) getPokemonTopFourBalls(pkm *pokemon, form string, shiny bool) (*di
 }
 
 // getBestBallsForPokemon returns
-func (b *Bot) getBestBallsForPokemon(pkm *pokemon) []*pokeBall {
-	balls := make([]*pokeBall, 0)
-	for _, pb := range b.pokemonRepo.ballsCatchRatesForPokemon(pkm) {
+func (b *Bot) getBestBallsForPokemon(pkm *repository.Pokemon) []*repository.PokeBall {
+	balls := make([]*repository.PokeBall, 0)
+	for _, pb := range b.repository.BallsCatchRatesForPokemon(pkm) {
 		if isExcludedBall(pb) {
 			continue
 		}
@@ -193,7 +195,7 @@ func (b *Bot) getBestBallsForPokemon(pkm *pokemon) []*pokeBall {
 }
 
 func (b *Bot) getPokemonColor(pType string) int {
-	t, err := b.pokemonRepo.pokemonType(pType)
+	t, err := b.repository.PokemonType(pType)
 	if err != nil {
 		return b.config.Bot.EmbedColor
 	}

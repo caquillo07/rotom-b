@@ -35,7 +35,7 @@ func (b *Bot) handleHelpCmd(
 		cmd := b.commands[name]
 		if cmd.helpText != "" {
 			commandFields = append(commandFields, &discordgo.MessageEmbedField{
-				Name:   cmd.usage,
+				Name:   cmd.usage(env.commandPrefix),
 				Value:  cmd.helpText,
 				Inline: false,
 			})
@@ -66,7 +66,7 @@ func (b *Bot) handleHelpCmd(
 
 		Use "%shelp [command]" for more information about a command.
 		`,
-		b.config.Bot.Prefix,
+		env.commandPrefix,
 	)
 
 	_, err := s.ChannelMessageSendEmbed(m.ChannelID, embed)
@@ -95,20 +95,20 @@ func (b *Bot) handleCommandUsage(
 	aliases := make([]string, 0)
 	for key := range b.commands {
 		if b.commands[key].alias != "" && b.commands[key].alias == env.args[0] {
-			aliases = append(aliases, fmt.Sprintf("%s%s", b.config.Bot.Prefix, key))
+			aliases = append(aliases, fmt.Sprintf("%s%s", env.commandPrefix, key))
 		}
 	}
 
 	fields := make([]*discordgo.MessageEmbedField, 0)
 	fields = append(fields, &discordgo.MessageEmbedField{
 		Name:   "Usage",
-		Value:  command.usage,
+		Value:  command.usage(env.commandPrefix),
 		Inline: true,
 	})
 
 	fields = append(fields, &discordgo.MessageEmbedField{
 		Name:   "Examples",
-		Value:  command.example,
+		Value:  command.example(env.commandPrefix),
 		Inline: true,
 	})
 

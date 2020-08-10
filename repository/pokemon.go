@@ -1,51 +1,24 @@
-package bot
+package repository
 
 import (
-	"encoding/json"
-	"errors"
-	"fmt"
-	"io/ioutil"
-	"os"
-	"sort"
-	"strings"
-
-	"github.com/jinzhu/gorm"
+    "fmt"
+    "sort"
+    "strings"
 )
 
-const (
-	galarian   = "galarian"
-	alolan     = "alolan"
-	gigantamax = "gigantamax"
-)
-
-var (
-	errDenDoesNotExist     = errors.New("den does not exist")
-	errBallDoesNotExist    = errors.New("ball does not exist")
-	errPokemonDoesNotExist = errors.New("pokemon does not exist")
-	errTypeDoesNotExist    = errors.New("type does not exist")
-)
-
-type pokemonRepo struct {
-	db       *gorm.DB
-	dens     map[string]*den
-	balls    map[string]*pokeBall
-	pokemons map[string]*pokemon
-	types    map[string]*pokemonType
-}
-
-type den struct {
+type Den struct {
 	Number string        `json:"den"`
-	Sword  []*denPokemon `json:"sword"`
-	Shield []*denPokemon `json:"shield"`
+	Sword  []*DenPokemon `json:"sword"`
+	Shield []*DenPokemon `json:"shield"`
 }
 
-type denPokemon struct {
+type DenPokemon struct {
 	Name       string `json:"name"`
 	Ability    string `json:"ability"`
 	Gigantamax bool   `json:"gigantamax"`
 }
 
-type pokeBall struct {
+type PokeBall struct {
 	ID         string
 	Name       string  `json:"name"`
 	Modifier   float64 `json:"modifier"`
@@ -54,7 +27,7 @@ type pokeBall struct {
 	Color      int     `json:"color"`
 }
 
-type pokemon struct {
+type Pokemon struct {
 	Abilities struct {
 		Ability1 string `json:"ability1"`
 		Ability2 string `json:"ability2"`
@@ -89,79 +62,18 @@ type pokemon struct {
 	Color       int      `json:"color"`
 }
 
-type pokemonType struct {
+type PokemonType struct {
 	Name      string             `json:"name"`
 	Offensive map[string]float64 `json:"offensive"`
 	Defensive map[string]float64 `json:"defensive"`
 	Color     int                `json:"color"`
 }
 
-// newPokemonRepo creates a new instance of the pokemonRepo
-// This method will load up the json files inside the /data
-// folder at the project's root, and create maps for quick look up.
-func newPokemonRepo(db *gorm.DB) (*pokemonRepo, error) {
-	// load all the json files, starting by dens
-	dens := make([]*den, 0)
-	if err := loadJSONInto("data/dens.json", &dens); err != nil {
-		return nil, fmt.Errorf("failed to load dens.json: %+v:\n", err)
-	}
-
-	// build the dens map for quick lookups
-	densMap := make(map[string]*den)
-	for _, den := range dens {
-		// if the file is structured properly, this should just work...
-		// todo(hector) - add validation here to prevent panics or overwrites?
-		densMap[den.Number] = den
-	}
-
-	balls := make([]*pokeBall, 0)
-	if err := loadJSONInto("data/balls.json", &balls); err != nil {
-		return nil, fmt.Errorf("failed to load balls.json: %+v:\n", err)
-	}
-
-	ballsMap := make(map[string]*pokeBall)
-	for _, ball := range balls {
-		// all names are "<something> Ball", so just remove the " Ball" part
-		lowered := strings.ToLower(ball.Name)
-		ball.ID = strings.ReplaceAll(lowered, " ball", "")
-		ballsMap[ball.ID] = ball
-	}
-
-	pokemons := make([]*pokemon, 0)
-	if err := loadJSONInto("data/pokemon.json", &pokemons); err != nil {
-		return nil, fmt.Errorf("failed to load pokemon.json: %+v:\n", err)
-	}
-
-	pkmMap := make(map[string]*pokemon)
-	for _, pkm := range pokemons {
-		lowered := strings.ToLower(pkm.Name)
-		pkmMap[lowered] = pkm
-	}
-
-	types := make([]*pokemonType, 0)
-	if err := loadJSONInto("data/types.json", &types); err != nil {
-		return nil, fmt.Errorf("failed to load types.json: %+v:\n", err)
-	}
-
-	typesMap := make(map[string]*pokemonType)
-	for _, pkmType := range types {
-		lowered := strings.ToLower(pkmType.Name)
-		typesMap[lowered] = pkmType
-	}
-
-	return &pokemonRepo{
-		dens:     densMap,
-		balls:    ballsMap,
-		pokemons: pkmMap,
-		types:    typesMap,
-	}, nil
-}
-
-// spriteImage returns the URL for the sprite of the pokemon. This function
+// SpriteImage returns the URL for the sprite of the Pokemon. This function
 // assumes the form is already validated and correct
 //
 // todo(hector) I hate this, I cant wait to get rid of it
-func (p *pokemon) spriteImage(shiny bool, form string) string {
+func (p *Pokemon) SpriteImage(shiny bool, form string) string {
 	fileType := "normal"
 	if shiny {
 		fileType = "shiny"
@@ -192,9 +104,9 @@ func (p *pokemon) spriteImage(shiny bool, form string) string {
 	)
 }
 
-// captureRate returns the catch rate and confidence level for the given
+// CaptureRate returns the catch rate and confidence level for the given
 // poke ball, and stats combination.
-func (p *pokemon) captureRate(ball *pokeBall, level, iv int, isGmax, isPromo bool) (float64, bool) {
+func (p *Pokemon) CaptureRate(ball *PokeBall, level, iv int, isGmax, isPromo bool) (float64, bool) {
 	hpStat := hpStatFromBase(p.BaseStats.HP, iv, level)
 	pCatchRate := p.CatchRate
 	confidence := true
@@ -226,21 +138,21 @@ func (p *pokemon) captureRate(ball *pokeBall, level, iv int, isGmax, isPromo boo
 	return catchProb, confidence
 }
 
-// den will try to find the given den, if it does not exist it
-// will return a `errDenDoesNotExist` error
-func (r *pokemonRepo) den(denNumber string) (*den, error) {
+// Den will try to find the given Den, if it does not exist it
+// will return a `ErrDenDoesNotExist` error
+func (r *Repository) Den(denNumber string) (*Den, error) {
 	if d, ok := r.dens[denNumber]; ok {
 		// return a copy of the original to not have unwanted changes to map
 		// storage
 		c := *d
 		return &c, nil
 	}
-	return nil, errDenDoesNotExist
+	return nil, ErrDenDoesNotExist
 }
 
-// ball will try to find the given ball, if it does not exist it
-// will return a `errBallDoesNotExist` error
-func (r *pokemonRepo) ball(ball string) (*pokeBall, error) {
+// Ball will try to find the given ball, if it does not exist it
+// will return a `ErrBallDoesNotExist` error
+func (r *Repository) Ball(ball string) (*PokeBall, error) {
 
 	// first clean the input a bit, we will remove all white spaces,
 	// then remove the "ball" part and any hyphens/underscores if present,
@@ -263,20 +175,20 @@ func (r *pokemonRepo) ball(ball string) (*pokeBall, error) {
 		c := *b
 		return &c, nil
 	}
-	return nil, errBallDoesNotExist
+	return nil, ErrBallDoesNotExist
 }
 
-// ballsCatchRatesForPokemon returns a list of all poke balls, sorted by
-// catch effectiveness for the given pokemon.
-func (r *pokemonRepo) ballsCatchRatesForPokemon(pkm *pokemon) []*pokeBall {
+// BallsCatchRatesForPokemon returns a list of all poke balls, sorted by
+// catch effectiveness for the given Pokemon.
+func (r *Repository) BallsCatchRatesForPokemon(pkm *Pokemon) []*PokeBall {
 	// make a copy of the balls so we don't accidentally modify the global
 	// state. This array is very small, so its ok to do this on every command
 	// call that needs it.
-	balls := make([]*pokeBall, 0)
+	balls := make([]*PokeBall, 0)
 	for _, ball := range r.balls {
 		// make a copy of the ball, in case we need to modify it
 		newBall := *ball
-		newBall.Modifier = newBall.catchModifier(pkm)
+		newBall.Modifier = newBall.CatchModifier(pkm)
 		balls = append(balls, &newBall)
 	}
 
@@ -287,32 +199,32 @@ func (r *pokemonRepo) ballsCatchRatesForPokemon(pkm *pokemon) []*pokeBall {
 	return balls
 }
 
-// pokemon will try to find the given pokemon, if it does not exist it
-// will return a `errBallDoesNotExist` error
-func (r *pokemonRepo) pokemon(name string) (*pokemon, error) {
-	if p, ok := r.pokemons[strings.ToLower(name)]; ok {
+// Pokemon will try to find the given Pokemon, if it does not exist it
+// will return a `ErrBallDoesNotExist` error
+func (r *Repository) Pokemon(name string) (*Pokemon, error) {
+	if p, ok := r.pokemon[strings.ToLower(name)]; ok {
 		// return a copy of the original to not have unwanted changes to map
 		// storage
 		c := *p
 		return &c, nil
 	}
-	return nil, errPokemonDoesNotExist
+	return nil, ErrPokemonDoesNotExist
 }
 
-// pokemon will try to find the given pokemon, if it does not exist it
-// will return a `errBallDoesNotExist` error
-func (r *pokemonRepo) pokemonType(name string) (*pokemonType, error) {
+// Pokemon will try to find the given Pokemon, if it does not exist it
+// will return a `ErrBallDoesNotExist` error
+func (r *Repository) PokemonType(name string) (*PokemonType, error) {
 	if t, ok := r.types[strings.ToLower(name)]; ok {
 		// return a copy of the original to not have unwanted changes to map
 		// storage
 		c := *t
 		return &c, nil
 	}
-	return nil, errTypeDoesNotExist
+	return nil, ErrTypeDoesNotExist
 }
 
-// catchModifier returns the actual modifier for the given pokemon
-func (b *pokeBall) catchModifier(pkm *pokemon) float64 {
+// CatchModifier returns the actual modifier for the given Pokemon
+func (b *PokeBall) CatchModifier(pkm *Pokemon) float64 {
 	mod := b.Modifier
 	switch b.ID {
 	case "moon":
@@ -350,24 +262,10 @@ func (b *pokeBall) catchModifier(pkm *pokemon) float64 {
 	return mod
 }
 
-func loadJSONInto(fileLocation string, i interface{}) error {
-	denFile, err := os.Open(fileLocation)
-	if err != nil {
-		return err
-	}
-
-	densBuf, err := ioutil.ReadAll(denFile)
-	if err != nil {
-		return err
-	}
-
-	return json.Unmarshal(densBuf, &i)
-}
-
 // I think this was a waste of time, but will leave because I spent so long
 // on it :cries:
 // nolint:goconst
-func getSpriteForm(form string) string {
+func GetSpriteForm(form string) string {
 	// lets make it lower case to make our life's easier. If we get the full
 	// form name, just return the capitalized version of it. If we get a
 	// shorthand name, return a static string
@@ -426,4 +324,19 @@ func spriteFileName(pkm, form string) string {
 		// ignore
 	}
 	return fmt.Sprintf("%s-%s", pkm, form)
+}
+
+var moonPokemon = []string{
+	"Nidoran", "Nidorina", "Nidoqueen", "Nidoran", "Nidorino", "Nidoking",
+	"Cleffa", "Clefairy", "Clefable", "Igglybuff", "Jigglypuff",
+	"Wigglytuff", "Munna", "Musharna",
+}
+
+func isMoonPokemon(pkm *Pokemon) bool {
+	for _, name := range moonPokemon {
+		if strings.EqualFold(pkm.Name, name) {
+			return true
+		}
+	}
+	return false
 }

@@ -1,4 +1,4 @@
-package bot
+package repository
 
 import "math"
 

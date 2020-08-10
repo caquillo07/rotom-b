@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
-	"github.com/caquillo07/rotom-bot/database"
+	"github.com/caquillo07/rotom-bot/repository"
 )
 
 type Config struct {
@@ -19,6 +19,11 @@ type Config struct {
 		SupportServerURL string
 	}
 
+	DBL struct {
+		Enable bool
+		Token string
+	}
+
 	Bot struct {
 		Prefix          string
 		EmbedColor      int
@@ -26,7 +31,7 @@ type Config struct {
 	}
 
 	// Config provides database configuration
-	Database database.Config
+	Database repository.Config
 }
 
 // LoadConfig loads configuration from the viper instance.

@@ -6,20 +6,29 @@ import (
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
+
+	"github.com/caquillo07/rotom-bot/repository"
 )
 
 type command struct {
 	execute   func(s *discordgo.Session, env *commandEnvironment, m *discordgo.Message) error
 	helpText  string
-	usage     string
-	example   string
+	usage     func(prefix string) string
+	example   func(prefix string) string
 	alias     string
+
+	// adminOnly is a command that only users with Admin permissions in the server
 	adminOnly bool
+
+	// botAdminOnly is a command that only the bot maintainers can run
+	// TODO(hector): add support for this
+	botAdminOnly bool
 }
 
 type commandEnvironment struct {
-	command string
-	args    []string
+	args          []string
+	command       string
+	commandPrefix string
 }
 
 type pokemonArg struct {
@@ -33,24 +42,36 @@ type pokemonArg struct {
 
 func (b *Bot) initCommands() {
 	b.commands["help"] = &command{
-		execute:   b.handleHelpCmd,
-		helpText:  "Displays a list of commands you have access to use.",
-		usage:     b.addCmdPrefix("{{p}}help [command]"),
-		example:   b.addCmdPrefix("{{p}}help\n{{p}}help den"),
+		execute:  b.handleHelpCmd,
+		helpText: "Displays a list of commands you have access to use.",
+		usage: func(prefix string) string {
+			return b.addCmdPrefix("{{p}}help [command]", prefix)
+		},
+		example: func(prefix string) string {
+			return b.addCmdPrefix("{{p}}help\n{{p}}help den", prefix)
+		},
 		adminOnly: false,
 	}
 	b.commands["den"] = &command{
-		execute:   b.handleDenCmd,
-		helpText:  "Shows a list of Pokémon that belong to a den including their HAs.",
-		usage:     b.addCmdPrefix("{{p}}den <den_number|pokemon_name>"),
-		example:   b.addCmdPrefix("{{p}}den 22\n{{p}}den charizard"),
+		execute:  b.handleDenCmd,
+		helpText: "Shows a list of Pokémon that belong to a den including their HAs.",
+		usage: func(prefix string) string {
+			return b.addCmdPrefix("{{p}}den <den_number|pokemon_name>", prefix)
+		},
+		example: func(prefix string) string {
+			return b.addCmdPrefix("{{p}}den 22\n{{p}}den charizard", prefix)
+		},
 		adminOnly: false,
 	}
 	b.commands["ball"] = &command{
-		execute:   b.handleBallCmd,
-		helpText:  "Shows a summary of a Poké-Ball’s statistics",
-		usage:     b.addCmdPrefix("{{p}}ball <ball_name>"),
-		example:   b.addCmdPrefix("{{p}}ball beast"),
+		execute:  b.handleBallCmd,
+		helpText: "Shows a summary of a Poké-Ball’s statistics",
+		usage: func(prefix string) string {
+			return b.addCmdPrefix("{{p}}ball <ball_name>", prefix)
+		},
+		example: func(prefix string) string {
+			return b.addCmdPrefix("{{p}}ball beast", prefix)
+		},
 		adminOnly: false,
 	}
 	b.commands["catch"] = &command{
@@ -61,63 +82,107 @@ This command will perform the calculations as presented by [Bulbapedia](https://
 The calculations are estimates, and due to a [rounding error](https://bulbapedia.bulbagarden.net/wiki/Catch_rate#Probability_of_capture), at some points its impossible to calculate with accuracy.
 
 The confidence level will display when this calculations fall under the rounding error`,
-		usage:     b.addCmdPrefix("{{p}}catch <pokemon> [form] [ball_name]"),
-		example:   b.addCmdPrefix("{{p}}catch charizard gmax lux"),
+		usage: func(prefix string) string {
+			return b.addCmdPrefix("{{p}}catch <pokemon> [form] [ball_name]", prefix)
+		},
+		example: func(prefix string) string {
+			return b.addCmdPrefix("{{p}}catch charizard gmax lux", prefix)
+		},
 		adminOnly: false,
 	}
 	b.commands["credits"] = &command{
-		execute:   b.handleCreditsCmd,
-		helpText:  "Credits to all who helped in the creation of the bot.",
-		usage:     b.addCmdPrefix("{{p}}credits"),
-		example:   b.addCmdPrefix("{{p}}credits"),
+		execute:  b.handleCreditsCmd,
+		helpText: "Credits to all who helped in the creation of the bot.",
+		usage: func(prefix string) string {
+			return b.addCmdPrefix("{{p}}credits", prefix)
+		},
+		example: func(prefix string) string {
+			return b.addCmdPrefix("{{p}}credits", prefix)
+		},
 		adminOnly: false,
 	}
 	b.commands["nature"] = &command{
-		execute:   b.handleNatureCmd,
-		helpText:  "Shows ithe Pokémon Sprite in appropriate form",
-		usage:     b.addCmdPrefix("{{p}}nature <nature>"),
-		example:   b.addCmdPrefix("{{p}}nature modest"),
+		execute:  b.handleNatureCmd,
+		helpText: "Shows ithe Pokémon Sprite in appropriate form",
+		usage: func(prefix string) string {
+			return b.addCmdPrefix("{{p}}nature <nature>", prefix)
+		},
+		example: func(prefix string) string {
+			return b.addCmdPrefix("{{p}}nature modest", prefix)
+		},
 		adminOnly: false,
 	}
 	b.commands["type"] = &command{
-		execute:   b.handleTypeCmd,
-		helpText:  "Shows info regarding Pokémon Types.",
-		usage:     b.addCmdPrefix("{{p}}type <type>"),
-		example:   b.addCmdPrefix("{{p}}type grass"),
+		execute:  b.handleTypeCmd,
+		helpText: "Shows info regarding Pokémon Types.",
+		usage: func(prefix string) string {
+			return b.addCmdPrefix("{{p}}type <type>", prefix)
+		},
+		example: func(prefix string) string {
+			return b.addCmdPrefix("{{p}}type grass", prefix)
+		},
 		adminOnly: false,
 	}
 	b.commands["pokedex"] = &command{
-		execute:   b.handlePokedexCmd,
-		helpText:  "Shows Pokédex info on every Pokémon.",
-		usage:     b.addCmdPrefix("{{p}}pokedex <pokemon>"),
-		example:   b.addCmdPrefix("{{p}}pokedex caterpie"),
+		execute:  b.handlePokedexCmd,
+		helpText: "Shows Pokédex info on every Pokémon.",
+		usage: func(prefix string) string {
+			return b.addCmdPrefix("{{p}}pokedex <pokemon>", prefix)
+		},
+		example: func(prefix string) string {
+			return b.addCmdPrefix("{{p}}pokedex caterpie", prefix)
+		},
 		adminOnly: false,
 	}
 	b.commands["sprite"] = &command{
-		execute:   b.handleSpriteCmd,
-		helpText:  "Shows the Pokémon Sprite. Include * in the end for the shiny sprite.",
-		usage:     b.addCmdPrefix("{{p}}sprite <pokemon>"),
-		example:   b.addCmdPrefix("{{p}}sprite charizard* gmax"),
+		execute:  b.handleSpriteCmd,
+		helpText: "Shows the Pokémon Sprite. Include * in the end for the shiny sprite.",
+		usage: func(prefix string) string {
+			return b.addCmdPrefix("{{p}}sprite <pokemon>", prefix)
+		},
+		example: func(prefix string) string {
+			return b.addCmdPrefix("{{p}}sprite charizard* gmax", prefix)
+		},
 		adminOnly: false,
 	}
 	b.commands["invite"] = &command{
-		execute:   b.handleInviteCmd,
-		helpText:  "Get an Invite Link to invite Rotom-B to another server!",
-		usage:     b.addCmdPrefix("{{p}}invite"),
-		example:   b.addCmdPrefix("{{p}}invite"),
+		execute:  b.handleInviteCmd,
+		helpText: "Get an Invite Link to invite Rotom-B to another server!",
+		usage: func(prefix string) string {
+			return b.addCmdPrefix("{{p}}invite", prefix)
+		},
+		example: func(prefix string) string {
+			return b.addCmdPrefix("{{p}}invite", prefix)
+		},
 		adminOnly: false,
 	}
 	b.commands["version"] = &command{
-		execute:   b.handleVersionCmd,
-		helpText:  "Check which version of Rotom-B is running.",
-		usage:     b.addCmdPrefix("{{p}}version"),
-		example:   b.addCmdPrefix("{{p}}version"),
+		execute:  b.handleVersionCmd,
+		helpText: "Check which version of Rotom-B is running.",
+		usage: func(prefix string) string {
+			return b.addCmdPrefix("{{p}}version", prefix)
+		},
+		example: func(prefix string) string {
+			return b.addCmdPrefix("{{p}}version", prefix)
+		},
 		adminOnly: false,
+	}
+	b.commands["settings"] = &command{
+		execute:  b.handleConfigCmd,
+		helpText: "Allows administrators to set server specific configuration",
+		usage: func(prefix string) string {
+			return b.addCmdPrefix("{{p}}settings", prefix)
+		},
+		example: func(prefix string) string {
+			return b.addCmdPrefix("{{p}}settings prefix %", prefix)
+		},
+		adminOnly: true,
 	}
 
 	// Alias for pre-established commands
 	b.commands["commands"] = &command{alias: "commands"}
 	b.commands["pokemon"] = &command{alias: "pokedex"}
+	b.commands["config"] = &command{alias: "settings"}
 	b.commands["image"] = &command{alias: "sprite"}
 	b.commands["dens"] = &command{alias: "den"}
 	b.commands["s"] = &command{alias: "sprite"}
@@ -126,8 +191,8 @@ The confidence level will display when this calculations fall under the rounding
 
 // addCmdPrefix replaces all cases of {{p}} with the actual
 // bot command prefix.
-func (b *Bot) addCmdPrefix(s string) string {
-	return strings.ReplaceAll(s, "{{p}}", b.config.Bot.Prefix)
+func (b *Bot) addCmdPrefix(s, pre string) string {
+	return strings.ReplaceAll(s, "{{p}}", pre)
 }
 
 func (b *Bot) newEmbed() *discordgo.MessageEmbed {
@@ -171,7 +236,7 @@ func parsePokemonCommand(args []string) pokemonArg {
 
 		// first we will try to find the form by looping through the arguments
 		// and see if any of them is a valid form.
-		if f := getSpriteForm(arg); f != "" {
+		if f := repository.GetSpriteForm(arg); f != "" {
 			pkmArgs.form = f
 			continue
 		}

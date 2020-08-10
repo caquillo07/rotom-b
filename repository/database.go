@@ -1,4 +1,4 @@
-package database
+package repository
 
 import (
 	"context"
@@ -6,6 +6,22 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/lib/pq" // psql driver
 )
+
+// Config provides database configuration
+type Config struct {
+	// Database driver
+	Driver string
+
+	// Database connection string
+	URL string
+
+	// Log will enable or disable query logging
+	Log bool
+
+	// Check if there is a custom migrations folder
+	MigrationFolder string
+}
+
 
 // Open creates a new connection with the given config
 func Open(config Config) (*gorm.DB, error) {

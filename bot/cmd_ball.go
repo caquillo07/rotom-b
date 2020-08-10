@@ -23,7 +23,7 @@ func (b *Bot) handleBallCmd(
 	}
 	pkmArgs := parsePokemonCommand(env.args)
 
-	ball, err := b.pokemonRepo.ball(pkmArgs.ball)
+	ball, err := b.repository.Ball(pkmArgs.ball)
 	if err != nil {
 		return botError{
 			title:   "Pokéball not found",

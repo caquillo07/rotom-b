@@ -15,7 +15,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/caquillo07/rotom-bot/conf"
-	"github.com/caquillo07/rotom-bot/database"
+	"github.com/caquillo07/rotom-bot/repository"
 )
 
 type migrateLogger zap.Logger
@@ -61,7 +61,7 @@ func runMigrateCommand(cmd *cobra.Command, args []string) {
 }
 
 // migrate performs a migration with the given configuration
-func migrate(config database.Config) error {
+func migrate(config repository.Config) error {
 	// Look for migrations folder in working path, else at the same level as a .git folder in a parent
 	var migrationFolderName string
 	if config.MigrationFolder != "" {
@@ -93,7 +93,7 @@ func migrate(config database.Config) error {
 		}
 	}
 
-	db, err := database.Open(config)
+	db, err := repository.Open(config)
 	if err != nil {
 		log.Fatalln(err)
 	}

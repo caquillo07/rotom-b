@@ -1,1 +1,1 @@
-DROP TABLE server_config;
+DROP TABLE guild_settings;
