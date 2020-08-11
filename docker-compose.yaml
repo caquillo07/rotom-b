@@ -4,7 +4,7 @@
 version: "3"
 services:
   db:
-    image: postgres:12
+    image: postgres:12.3
     volumes:
       - db-data:/var/lib/postgresql/data
     networks:

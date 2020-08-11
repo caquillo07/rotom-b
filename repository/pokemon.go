@@ -81,14 +81,21 @@ func (p *Pokemon) SpriteImage(shiny bool, form string) string {
 
 	cleanName := strings.ReplaceAll(p.Name, "-", "")
 
+	// kind of hacky here, but if the pokemon is a galar one we need to
+	// remove the form from the name, else we wont get the right sprite.
+	// I HATE this. todo(hector) remove this once json has image urls.
+	if form == galarian {
+		cleanName = strings.ReplaceAll(cleanName, "Galarian ", "")
+	}
+
 	// the dumb mr mime line has special sprite names. I. hate. this.
 	if p.DexID == 439 || p.DexID == 122 || p.DexID == 866 {
-		cleanName = strings.ReplaceAll(p.Name, " ", "-")
+		cleanName = strings.ReplaceAll(cleanName, " ", "-")
 	}
 
 	// farfetch'd also has funny sprites _flipstable_
 	if p.DexID == 83 || p.DexID == 865 {
-		cleanName = strings.ReplaceAll(p.Name, "'", "")
+		cleanName = strings.ReplaceAll(cleanName, "'", "")
 	}
 
 	// urshifu be special too, you thought it ended with farfetch'd? no sir!
