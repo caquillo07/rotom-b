@@ -16,6 +16,9 @@ METRICS_IMPORT_PATH=github.com/caquillo07/rotom-bot/metrics
 # Setup the -ldflags option for go build here, interpolate the variable values
 LDFLAGS = -ldflags "-X ${METRICS_IMPORT_PATH}.Version=${VERSION} -X ${METRICS_IMPORT_PATH}.Commit=${COMMIT} -X ${METRICS_IMPORT_PATH}.Branch=${BRANCH}"
 
+dev:
+	go run main.go bot --dev-log
+
 dev-reload:
 	air -c .air.conf
 
@@ -27,3 +30,6 @@ linux:
 
 darwin:
 	GOOS=darwin GOARCH=${GOARCH} go build ${LDFLAGS} -o ${BINARY}-darwin-${GOARCH} .
+
+windows:
+	GOOS=windows GOARCH=${GOARCH} go build ${LDFLAGS} -o ${BINARY}-windows-${GOARCH} .

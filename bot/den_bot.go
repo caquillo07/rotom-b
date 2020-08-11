@@ -166,6 +166,7 @@ func (b *Bot) handleMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 		zap.String("command", m.Content),
 		zap.String("user", m.Author.String()),
 		zap.String("channel", channel.Name),
+		zap.String("guild_name", guild.Name),
 	)
 
 	// Handle panics gracefully, sucks that we do it this late but we need some
