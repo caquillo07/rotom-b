@@ -49,6 +49,13 @@ func (b *Bot) handleDenCmd(
 }
 
 func (b *Bot) getDensFromPokemon(pkmnName, form string, isShiny bool) (*discordgo.MessageEmbed, error) {
+
+	// the pokemon.json file has the galarian pokemon as a separate pokemon,
+	// so in this special case we must append it to the name. Maybe we need to
+	// change this?
+	if form == galarian {
+		pkmnName = form + " " +pkmnName
+	}
 	pkm, err := b.repository.Pokemon(pkmnName)
 	if err != nil {
 		return nil, botError{

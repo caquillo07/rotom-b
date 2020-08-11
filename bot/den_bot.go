@@ -17,6 +17,8 @@ import (
 	"github.com/caquillo07/rotom-bot/repository"
 )
 
+const galarian = "galarian"
+
 type Bot struct {
 	config         conf.Config
 	session        *discordgo.Session
