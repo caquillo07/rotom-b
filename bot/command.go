@@ -11,11 +11,11 @@ import (
 )
 
 type command struct {
-	execute   func(s *discordgo.Session, env *commandEnvironment, m *discordgo.Message) error
-	helpText  string
-	usage     func(prefix string) string
-	example   func(prefix string) string
-	alias     string
+	execute  func(s *discordgo.Session, env *commandEnvironment, m *discordgo.Message) error
+	helpText string
+	usage    func(prefix string) string
+	example  func(prefix string) string
+	alias    string
 
 	// adminOnly is a command that only users with Admin permissions in the server
 	adminOnly bool

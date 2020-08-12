@@ -1,7 +1,14 @@
 package metrics
 
 var (
+
+	// Version is the version of the bot, injected at build time
 	Version string
-	Commit  string
-	Branch  string
+
+	// Commit is the commit used to build this version, injected at build time
+	Commit string
+
+	// Branch is the branch used to build the this version, injected at build
+	// time
+	Branch string
 )

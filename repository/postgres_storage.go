@@ -14,18 +14,30 @@ import (
 )
 
 const (
-	galarian   = "galarian"
-	alolan     = "alolan"
+	galarian = "galarian"
+	alolan   = "alolan"
+
+	// Gigantamax is the gmax form
 	Gigantamax = "gigantamax"
 )
 
 var (
-	ErrDenDoesNotExist     = errors.New("den does not exist")
-	ErrBallDoesNotExist    = errors.New("ball does not exist")
+
+	// ErrDenDoesNotExist is returned when a den does not exist
+	ErrDenDoesNotExist = errors.New("den does not exist")
+
+	// ErrBallDoesNotExist is returned when a ball does not exist
+	ErrBallDoesNotExist = errors.New("ball does not exist")
+
+	// ErrPokemonDoesNotExist is returned when a pokemon does not exist
 	ErrPokemonDoesNotExist = errors.New("pokemon does not exist")
-	ErrTypeDoesNotExist    = errors.New("type does not exist")
+
+	// ErrTypeDoesNotExist is returned when a type does not exist
+	ErrTypeDoesNotExist = errors.New("type does not exist")
 )
 
+// Repository handles all the searching and saving of all of storage related
+// data in the app.
 type Repository struct {
 	db      *gorm.DB
 	cache   *cache.Cache
@@ -45,7 +57,7 @@ func NewRepository(db *gorm.DB) (*Repository, error) {
 	// load all the json files, starting by dens
 	dens := make([]*Den, 0)
 	if err := loadJSONInto("data/dens.json", &dens); err != nil {
-		return nil, fmt.Errorf("failed to load dens.json: %+v:\n", err)
+		return nil, fmt.Errorf("failed to load dens.json: %+v", err)
 	}
 
 	// build the dens map for quick lookups
@@ -58,7 +70,7 @@ func NewRepository(db *gorm.DB) (*Repository, error) {
 
 	balls := make([]*PokeBall, 0)
 	if err := loadJSONInto("data/balls.json", &balls); err != nil {
-		return nil, fmt.Errorf("failed to load balls.json: %+v:\n", err)
+		return nil, fmt.Errorf("failed to load balls.json: %+v", err)
 	}
 
 	ballsMap := make(map[string]*PokeBall)
@@ -71,7 +83,7 @@ func NewRepository(db *gorm.DB) (*Repository, error) {
 
 	pokemons := make([]*Pokemon, 0)
 	if err := loadJSONInto("data/pokemon.json", &pokemons); err != nil {
-		return nil, fmt.Errorf("failed to load pokemon.json: %+v:\n", err)
+		return nil, fmt.Errorf("failed to load pokemon.json: %+v", err)
 	}
 
 	pkmMap := make(map[string]*Pokemon)
@@ -82,7 +94,7 @@ func NewRepository(db *gorm.DB) (*Repository, error) {
 
 	types := make([]*PokemonType, 0)
 	if err := loadJSONInto("data/types.json", &types); err != nil {
-		return nil, fmt.Errorf("failed to load types.json: %+v:\n", err)
+		return nil, fmt.Errorf("failed to load types.json: %+v", err)
 	}
 
 	typesMap := make(map[string]*PokemonType)

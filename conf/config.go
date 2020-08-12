@@ -11,6 +11,7 @@ import (
 	"github.com/caquillo07/rotom-bot/repository"
 )
 
+// Config contains all of the configurable pieces of the application.
 type Config struct {
 	Discord struct {
 		Token            string
@@ -21,7 +22,7 @@ type Config struct {
 
 	DBL struct {
 		Enable bool
-		Token string
+		Token  string
 	}
 
 	Bot struct {
