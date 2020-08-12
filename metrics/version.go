@@ -1,5 +1,7 @@
 package metrics
 
+import "time"
+
 var (
 
 	// Version is the version of the bot, injected at build time
@@ -11,4 +13,7 @@ var (
 	// Branch is the branch used to build the this version, injected at build
 	// time
 	Branch string
+
+	// Date is when this binary was built, injected at build time
+	Date time.Time
 )

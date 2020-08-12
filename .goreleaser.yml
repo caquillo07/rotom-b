@@ -4,8 +4,6 @@ before:
   hooks:
     # You may remove this if you don't use go modules.
     - go mod download
-    # you may remove this if you don't need go generate
-    - go generate ./...
 builds:
   - env:
       - CGO_ENABLED=0
@@ -13,6 +11,8 @@ builds:
       - linux
       - windows
       - darwin
+  - ldflags:
+      - -X {{ .Env.METRICS_IMPORT_PATH }}.Version={{ .Version }} -X {{ .Env.METRICS_IMPORT_PATH }}.Commit={{ .Commit }} -X {{ .Env.METRICS_IMPORT_PATH }}.Branch={{ .Env.BRANCH }}
 archives:
   - replacements:
       darwin: Darwin
@@ -30,8 +30,3 @@ changelog:
     exclude:
       - '^docs:'
       - '^test:'
-blobs:
-  extra_files:
-    - glob: ./example-config.yaml
-    - glob: ./data/**
-
