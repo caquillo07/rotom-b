@@ -37,4 +37,4 @@ windows:
 release:
 	git tag -a ${VERSION} -m "release-${VERSION}"
 	git push --force origin ${VERSION}
-	goreleaser --rm-dist
+	METRICS_IMPORT_PATH=${METRICS_IMPORT_PATH} goreleaser --rm-dist
