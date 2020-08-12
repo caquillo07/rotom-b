@@ -30,3 +30,8 @@ changelog:
     exclude:
       - '^docs:'
       - '^test:'
+blobs:
+  extra_files:
+      - glob: ./example-config.yaml
+      - glob: ./data/**
+
