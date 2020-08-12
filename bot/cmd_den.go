@@ -54,7 +54,7 @@ func (b *Bot) getDensFromPokemon(pkmnName, form string, isShiny bool) (*discordg
 	// so in this special case we must append it to the name. Maybe we need to
 	// change this?
 	if form == galarian {
-		pkmnName = form + " " +pkmnName
+		pkmnName = form + " " + pkmnName
 	}
 	pkm, err := b.repository.Pokemon(pkmnName)
 	if err != nil {

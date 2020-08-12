@@ -8,7 +8,9 @@ import (
 	"github.com/patrickmn/go-cache"
 )
 
+// GuildSettings contains all the personal settings for a given guild
 type GuildSettings struct {
+
 	// ID internal unique ID
 	ID int
 
@@ -39,7 +41,7 @@ type GuildSettings struct {
 	UpdatedAt time.Time
 }
 
-// CreateGuildConfig creates a new config for a guild, and save a copy in the
+// CreateGuildSettings creates a new config for a guild, and save a copy in the
 // cache that does not expire.
 func (r *Repository) CreateGuildSettings(config *GuildSettings) error {
 	if err := r.db.Create(&config).Error; err != nil {

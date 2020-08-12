@@ -19,6 +19,8 @@ import (
 
 const galarian = "galarian"
 
+// Bot is the struct defining the den bot, it is responsible for listening
+// to on the discord session and handling messages.
 type Bot struct {
 	config         conf.Config
 	session        *discordgo.Session
@@ -27,6 +29,7 @@ type Bot struct {
 	requestsServed uint64
 }
 
+// NewBot creates a new bot instance from the given session and config
 func NewBot(conf conf.Config, session *discordgo.Session) *Bot {
 	return &Bot{
 		config:   conf,
@@ -35,6 +38,9 @@ func NewBot(conf conf.Config, session *discordgo.Session) *Bot {
 	}
 }
 
+// Run starts an instance of a bot. This method will create a new repository
+// with a database connection to the given configuration, initialize all
+// commands and listen on the discord web socket.
 func (b *Bot) Run() error {
 	logger := zap.L()
 
@@ -166,6 +172,7 @@ func (b *Bot) handleMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 		zap.String("command", m.Content),
 		zap.String("user", m.Author.String()),
 		zap.String("channel", channel.Name),
+		zap.String("guild_name", guild.Name),
 	)
 
 	// Handle panics gracefully, sucks that we do it this late but we need some
@@ -208,7 +215,7 @@ func (b *Bot) handleMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 			}
 			if !isAdmin {
 				logger.Info(
-					m.Author.String() + "user doesn't have admin role",
+					m.Author.String()+"user doesn't have admin role",
 					zap.String("command", cleanedMsg),
 					zap.String("user", m.Author.String()),
 				)
@@ -217,8 +224,8 @@ func (b *Bot) handleMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 
 		env := &commandEnvironment{
-			args:    cmdParts[1:],
-			command: cmdParts[0],
+			args:          cmdParts[1:],
+			command:       cmdParts[0],
 			commandPrefix: prefix,
 		}
 		if err := botCmd.execute(s, env, m.Message); err != nil {

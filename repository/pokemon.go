@@ -1,23 +1,26 @@
 package repository
 
 import (
-    "fmt"
-    "sort"
-    "strings"
+	"fmt"
+	"sort"
+	"strings"
 )
 
+// Den represents a den, its number and the pokemon within it.
 type Den struct {
 	Number string        `json:"den"`
 	Sword  []*DenPokemon `json:"sword"`
 	Shield []*DenPokemon `json:"shield"`
 }
 
+// DenPokemon is the basic information for a pokemon inside a den.
 type DenPokemon struct {
 	Name       string `json:"name"`
 	Ability    string `json:"ability"`
 	Gigantamax bool   `json:"gigantamax"`
 }
 
+// PokeBall contains the name and modifiers of a pokeball
 type PokeBall struct {
 	ID         string
 	Name       string  `json:"name"`
@@ -27,6 +30,7 @@ type PokeBall struct {
 	Color      int     `json:"color"`
 }
 
+// Pokemon is a pokemon and all of it's in game information.
 type Pokemon struct {
 	Abilities struct {
 		Ability1 string `json:"ability1"`
@@ -62,6 +66,7 @@ type Pokemon struct {
 	Color       int      `json:"color"`
 }
 
+// PokemonType is pokemon type
 type PokemonType struct {
 	Name      string             `json:"name"`
 	Offensive map[string]float64 `json:"offensive"`
@@ -218,8 +223,8 @@ func (r *Repository) Pokemon(name string) (*Pokemon, error) {
 	return nil, ErrPokemonDoesNotExist
 }
 
-// Pokemon will try to find the given Pokemon, if it does not exist it
-// will return a `ErrBallDoesNotExist` error
+// PokemonType will try to find the a Pokemon type, if it does not exist it
+// will return a `ErrTypeDoesNotExist` error
 func (r *Repository) PokemonType(name string) (*PokemonType, error) {
 	if t, ok := r.types[strings.ToLower(name)]; ok {
 		// return a copy of the original to not have unwanted changes to map
@@ -269,8 +274,10 @@ func (b *PokeBall) CatchModifier(pkm *Pokemon) float64 {
 	return mod
 }
 
-// I think this was a waste of time, but will leave because I spent so long
-// on it :cries:
+// GetSpriteForm will return the name of the sprite for the given pokemon form.
+//
+// I think this was a waste of time, but will leave because I
+// spent so long on it :cries:
 // nolint:goconst
 func GetSpriteForm(form string) string {
 	// lets make it lower case to make our life's easier. If we get the full

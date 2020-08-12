@@ -22,7 +22,6 @@ type Config struct {
 	MigrationFolder string
 }
 
-
 // Open creates a new connection with the given config
 func Open(config Config) (*gorm.DB, error) {
 	db, err := gorm.Open(config.Driver, config.URL)
