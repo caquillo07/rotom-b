@@ -33,3 +33,8 @@ darwin:
 
 windows:
 	GOOS=windows GOARCH=${GOARCH} go build ${LDFLAGS} -o ${BINARY}-windows-${GOARCH} .
+
+release:
+	git tag -a $(cat .version) -m "$(cat .version)"
+	git push origin $(cat .version)
+	goreleaser --rm-dist
