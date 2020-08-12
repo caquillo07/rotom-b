@@ -56,7 +56,7 @@ func initLogging() {
 		zap.String("version", metrics.Version),
 		zap.String("commit", metrics.Commit),
 		zap.String("branch", metrics.Branch),
-		zap.Time("built_date", metrics.Date),
+		zap.String("built_date", metrics.Date),
 	)
 	zap.ReplaceGlobals(logger)
 }
