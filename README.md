@@ -19,7 +19,7 @@ This is not meant to be competition, so please all credits goes to the original 
 - Complete Max Raid Dens information, including up to date Isle of Armor DLC. 
 - Easily accessible Pokémon data, like stats, abilities, den locations, pokédex entries, etc. 
 - Catch rate & pokéball stats calculator based on Bulbapedia.
-- Sprites for all pokémon, including forms and shiny versions. 
+- Sprites for all Pokémon, including forms and shiny versions. 
 
 ## Commands
 -  `<>` indicate required fields.
@@ -45,7 +45,7 @@ Command | Arguments | Description
 ## Upcoming Features/Todos
 - [X] ~~Persistency, including a database for all the data~~
 - [X] ~~Custom settings~~
-- [X] ~~Updated Sword and Shield sprites for all Pokémon~~
+- [X] ~~Updated Pokémon information with all new Sword and Shield DLC Pokémon and Zarude~~
 - [ ] Automatic messages on bot status and new updates
 - [ ] Friend codes and IGN storage support
 - [ ] Creating website
