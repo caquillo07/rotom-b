@@ -32,6 +32,6 @@ changelog:
       - '^test:'
 blobs:
   extra_files:
-      - glob: ./example-config.yaml
-      - glob: ./data/**
+    - glob: ./example-config.yaml
+    - glob: ./data/**
 
