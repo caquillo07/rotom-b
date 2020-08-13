@@ -35,6 +35,6 @@ windows:
 	GOOS=windows GOARCH=${GOARCH} go build ${LDFLAGS} -o ${BINARY}-windows-${GOARCH} .
 
 release:
-	git tag -a $(cat .version) -m "$(cat .version)"
-	git push origin $(cat .version)
-	goreleaser --rm-dist
+	git tag -a ${VERSION} -m "release-${VERSION}"
+	git push --force origin ${VERSION}
+	METRICS_IMPORT_PATH=${METRICS_IMPORT_PATH} BRANCH=${BRANCH} goreleaser --rm-dist

@@ -11,4 +11,7 @@ var (
 	// Branch is the branch used to build the this version, injected at build
 	// time
 	Branch string
+
+	// Date is when this binary was built, injected at build time
+	Date string
 )

@@ -13,8 +13,8 @@ var versionCmd = &cobra.Command{
 	Short: "Show the version, branch, and commit",
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Printf(
-			"Version: %v\nBranch: %v\nCommit: %v\n",
-			metrics.Version, metrics.Branch, metrics.Commit,
+			"Version: %v\nBranch: %v\nCommit: %v\nBuilt On: %v\n",
+			metrics.Version, metrics.Branch, metrics.Commit, metrics.Date,
 		)
 	},
 }

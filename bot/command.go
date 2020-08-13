@@ -183,6 +183,7 @@ The confidence level will display when this calculations fall under the rounding
 	b.commands["commands"] = &command{alias: "commands"}
 	b.commands["pokemon"] = &command{alias: "pokedex"}
 	b.commands["dex"] = &command{alias: "pokedex"}
+	b.commands["info"] = &command{alias: "pokedex"}
 	b.commands["config"] = &command{alias: "settings"}
 	b.commands["support"] = &command{alias: "help"}
 	b.commands["image"] = &command{alias: "sprite"}

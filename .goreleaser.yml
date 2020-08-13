@@ -4,8 +4,6 @@ before:
   hooks:
     # You may remove this if you don't use go modules.
     - go mod download
-    # you may remove this if you don't need go generate
-    - go generate ./...
 builds:
   - env:
       - CGO_ENABLED=0
@@ -13,6 +11,8 @@ builds:
       - linux
       - windows
       - darwin
+    ldflags:
+      - -X {{ .Env.METRICS_IMPORT_PATH }}.Version={{ .Version }} -X {{ .Env.METRICS_IMPORT_PATH }}.Commit={{ .Commit }} -X {{ .Env.METRICS_IMPORT_PATH }}.Branch={{ .Env.BRANCH }} -X {{ .Env.METRICS_IMPORT_PATH }}.Date={{ .Date }}
 archives:
   - replacements:
       darwin: Darwin
@@ -20,6 +20,10 @@ archives:
       windows: Windows
       386: i386
       amd64: x86_64
+    files:
+      - README.md
+      - data/*
+      - example-config.yaml
 checksum:
   name_template: 'checksums.txt'
 snapshot:
