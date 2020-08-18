@@ -20,7 +20,7 @@ func (b *Bot) handleSpriteCmd(
 		}
 	}
 
-	pkmArgs := parsePokemonCommand(env.args)
+	pkmArgs := parsePokemonCommand(env.command, env.args)
 
 	// if the name and shininess were not parsed properly, lets assume it
 	// follows the order on the help description.

@@ -21,7 +21,7 @@ func (b *Bot) handleBallCmd(
 			details: "Please enter a Pokéball name to get its animation.",
 		}
 	}
-	pkmArgs := parsePokemonCommand(env.args)
+	pkmArgs := parsePokemonCommand(env.command, env.args)
 
 	ball, err := b.repository.Ball(pkmArgs.ball)
 	if err != nil {

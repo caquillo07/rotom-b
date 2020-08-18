@@ -216,7 +216,7 @@ func (b *Bot) newErrorEmbedf(errorTitle, errorMsg string, a ...interface{}) *dis
 	return embed
 }
 
-func parsePokemonCommand(args []string) pokemonArg {
+func parsePokemonCommand(command string, args []string) pokemonArg {
 
 	// make a uniformed string to make it easier to parse
 	for i, a := range args {
@@ -239,7 +239,7 @@ func parsePokemonCommand(args []string) pokemonArg {
 
 		// first we will try to find the form by looping through the arguments
 		// and see if any of them is a valid form.
-		if f := repository.GetSpriteForm(arg); f != "" {
+		if f := repository.GetSpriteForm(arg); f != "" && command != "ball" {
 			pkmArgs.form = f
 			continue
 		}
@@ -349,7 +349,7 @@ func parsePokemonCommand(args []string) pokemonArg {
 			continue
 		}
 
-		// last, lets see if we can find a den on the command. This is a "heavy"
+		// last, lets see if we can find a ball on the command. This is a "heavy"
 		// check since we are loop through an array inside another loop, so lets
 		// do it last.
 		for _, b := range ballNames {

@@ -21,7 +21,7 @@ func (b *Bot) handleDenCmd(
 		}
 	}
 
-	pkmArgs := parsePokemonCommand(env.args)
+	pkmArgs := parsePokemonCommand(env.command, env.args)
 
 	if pkmArgs.den != "" {
 		embed, err := b.getDenFromNumber(env.args[0])
@@ -322,6 +322,9 @@ func (b *Bot) getDenFromNumber(denNumber string) (*discordgo.MessageEmbed, error
 			swordField.Value += den.Sword[i].Name + "\n"
 		}
 	}
+	if swordField.Value == "" {
+		swordField.Value = "N/A"
+	}
 
 	shieldField := &discordgo.MessageEmbedField{}
 	shieldField.Inline = true
@@ -330,6 +333,9 @@ func (b *Bot) getDenFromNumber(denNumber string) (*discordgo.MessageEmbed, error
 		if den.Shield[i].Ability != "Standard" {
 			shieldField.Value += den.Shield[i].Name + "\n"
 		}
+	}
+	if shieldField.Value == "" {
+		shieldField.Value = "N/A"
 	}
 
 	embed := b.newEmbed()
