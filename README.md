@@ -2,6 +2,11 @@
 
 Rotom-B is a Discord Bot with lots of easily accessible Pokémon information, tailored to make your Max Raid battles easier. Rotom-B keeps up to date Pokémon Sword & Shield data including: dens, catch rate, pokéballs, pokédex, types and natures data, with more to be added soon.
 
+## Top.gg
+[![Discord Bots](https://top.gg/api/widget/726478988276531212.svg)](https://top.gg/bot/726478988276531212)
+
+[Vote for us on Top.gg!](https://top.gg/bot/726478988276531212)
+
 
 ## How to get started
 
