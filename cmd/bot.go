@@ -3,7 +3,6 @@ package cmd
 import (
 	"log"
 
-	"github.com/bwmarrin/discordgo"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
@@ -27,13 +26,7 @@ func runBotCommand(_ *cobra.Command, _ []string) {
 		logger.Fatal("failed to load config", zap.Error(err))
 	}
 
-	// Create a new Discord session using the provided login information.
-	discordSession, err := discordgo.New("Bot " + config.Discord.Token)
-	if err != nil {
-		logger.Fatal("error creating Discord session", zap.Error(err))
-	}
-
-	b := bot.NewBot(config, discordSession)
+	b := bot.NewBot(config)
 	if err := b.Run(); err != nil {
 		log.Fatal(err)
 	}

@@ -32,12 +32,11 @@ func (b *Bot) handleConfigCmd(
 	}
 
 	if len(env.args) == 0 {
-		embed, err := b.currentSettingsEmbed(guildSettings)
+		embed, err := b.currentSettingsEmbed(s, guildSettings)
 		if err != nil {
 			return err
 		}
-		_, err = s.ChannelMessageSendEmbed(m.ChannelID, embed)
-		return err
+		return sendEmbed(s, m.ChannelID, embed)
 	}
 
 	switch c := env.args[0]; c {
@@ -64,14 +63,13 @@ func (b *Bot) handleConfigCmd(
 	embed.Title = "Update Successful"
 	embed.Description = "Setting was updated successfully"
 	embed.Color = 0x00FF00
-	_, err = s.ChannelMessageSendEmbed(m.ChannelID, embed)
-	return err
+	return sendEmbed(s, m.ChannelID, embed)
 }
 
-func (b *Bot) currentSettingsEmbed(settings *repository.GuildSettings) (*discordgo.MessageEmbed, error) {
+func (b *Bot) currentSettingsEmbed(s *discordgo.Session, settings *repository.GuildSettings) (*discordgo.MessageEmbed, error) {
 	lastUpdatedBy := "Never"
 	if settings.LastUpdatedBy != "" {
-		user, err := b.session.User(settings.LastUpdatedBy)
+		user, err := s.User(settings.LastUpdatedBy)
 		if err != nil {
 			return nil, err
 		}

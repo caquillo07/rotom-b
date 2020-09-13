@@ -50,8 +50,7 @@ func (b *Bot) handleTypeCmd(
 		},
 	}
 
-	_, err = s.ChannelMessageSendEmbed(m.ChannelID, embed)
-	return err
+	return sendEmbed(s, m.ChannelID, embed)
 }
 
 func generateTypeMessage(typeInfo map[string]float64) string {

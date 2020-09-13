@@ -53,6 +53,5 @@ func (b *Bot) handleSpriteCmd(
 		Width:  300,
 		Height: 300,
 	}
-	_, err = s.ChannelMessageSendEmbed(m.ChannelID, embed)
-	return err
+	return sendEmbed(s, m.ChannelID, embed)
 }

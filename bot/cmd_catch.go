@@ -63,8 +63,7 @@ func (b *Bot) handleCatchCmd(
 		if err != nil {
 			return err
 		}
-		_, err = s.ChannelMessageSendEmbed(m.ChannelID, embed)
-		return err
+		return sendEmbed(s, m.ChannelID, embed)
 	}
 
 	// If we got a ball, we are doing an specific check against a pokemon.
@@ -72,8 +71,7 @@ func (b *Bot) handleCatchCmd(
 	if err != nil {
 		return err
 	}
-	_, err = s.ChannelMessageSendEmbed(m.ChannelID, embed)
-	return err
+	return sendEmbed(s, m.ChannelID, embed)
 }
 
 func (b *Bot) getPokemonCatchRate(
