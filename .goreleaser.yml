@@ -11,6 +11,8 @@ builds:
       - linux
       - windows
       - darwin
+    goarch:
+      - amd64
     ldflags:
       - -X {{ .Env.METRICS_IMPORT_PATH }}.Version={{ .Version }} -X {{ .Env.METRICS_IMPORT_PATH }}.Commit={{ .Commit }} -X {{ .Env.METRICS_IMPORT_PATH }}.Branch={{ .Env.BRANCH }} -X {{ .Env.METRICS_IMPORT_PATH }}.Date={{ .Date }}
 archives:
