@@ -56,7 +56,8 @@ func (b *Bot) handleBallCmd(
 	if ball.Modifier != math.Trunc(ball.Modifier) {
 		modFormatter = "%.1f"
 	}
-	embed.Description = fmt.Sprintf(`
+	embed.Description = fmt.Sprintf(
+		`
 		**Ball Effects:** %s
 		**Ball Modifier:** %sx
 		**Ball Conditions:** %s
@@ -67,6 +68,5 @@ func (b *Bot) handleBallCmd(
 		ball.Conditions,
 	)
 
-	_, err = s.ChannelMessageSendEmbed(m.ChannelID, embed)
-	return err
+	return sendEmbed(s, m.ChannelID, embed)
 }

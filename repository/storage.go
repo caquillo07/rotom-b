@@ -1,6 +1,6 @@
 package repository
 
-import "errors"
+import "github.com/pkg/errors"
 
 var (
 	// ErrRecordNotFound is a generic error returned when a given record is not

@@ -1,16 +1,17 @@
 package bot
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"os/signal"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"syscall"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/kubastick/dblgo"
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
 	"github.com/caquillo07/rotom-bot/conf"
@@ -23,17 +24,16 @@ const galarian = "galarian"
 // to on the discord session and handling messages.
 type Bot struct {
 	config         conf.Config
-	session        *discordgo.Session
+	sessions       []*discordgo.Session
 	repository     *repository.Repository
 	commands       map[string]*command
 	requestsServed uint64
 }
 
 // NewBot creates a new bot instance from the given session and config
-func NewBot(conf conf.Config, session *discordgo.Session) *Bot {
+func NewBot(conf conf.Config) *Bot {
 	return &Bot{
 		config:   conf,
-		session:  session,
 		commands: make(map[string]*command),
 	}
 }
@@ -60,16 +60,60 @@ func (b *Bot) Run() error {
 	// Create all the commands on the bot
 	b.initCommands()
 
-	// Register ready as a callback for the ready events.
-	b.session.AddHandler(b.ready)
+	// Create a new Discord session using the provided login information.
+	// This session will help us get the recommended sharding numbers.
+	discordToken := "Bot " + b.config.Discord.Token
+	mainSession, err := discordgo.New(discordToken)
+	if err != nil {
+		logger.Fatal("error creating Discord session", zap.Error(err))
+	}
 
-	// Register the handleMessage func as a callback for MessageCreate events.
-	b.session.AddHandler(b.handleMessage)
-
-	// Open a websocket connection to Discord and begin listening.
-	if err := b.session.Open(); err != nil {
-		logger.Error("error opening connection", zap.Error(err))
+	gateway, err := mainSession.GatewayBot()
+	if err != nil {
 		return err
+	}
+
+	logger.Info(
+		fmt.Sprintf("opening bot with %d shards", gateway.Shards),
+		zap.Int("shards", gateway.Shards),
+	)
+
+	// Now lets create a new session for each of the shards we get.
+	b.sessions = make([]*discordgo.Session, gateway.Shards)
+	wg := sync.WaitGroup{}
+	for i := 0; i < gateway.Shards; i++ {
+		logger.Info(fmt.Sprintf("opening shared %d", i+1))
+		session, err := discordgo.New(discordToken)
+		if err != nil {
+			return err
+		}
+
+		session.ShardCount = gateway.Shards
+		session.ShardID = i
+		session.Identify.Intents = discordgo.MakeIntent(discordgo.IntentsAllWithoutPrivileged)
+		session.State.TrackPresences = false
+		b.sessions[i] = session
+		wg.Add(1)
+
+		// We shoot the connection off on its own to speed it up a bit.
+		go func(session *discordgo.Session, shard int) {
+			// Open a websocket connection to Discord and begin listening.
+			defer wg.Done()
+			if err := session.Open(); err != nil {
+				logger.Error(fmt.Sprintf("error opening connection on shard %d", shard), zap.Error(err))
+			}
+		}(b.sessions[i], i+1)
+	}
+	wg.Wait()
+
+	// Add all handlers
+	for _, session := range b.sessions {
+
+		// Register ready as a callback for the ready events.
+		session.AddHandler(b.ready)
+
+		// Register the handleMessage func as a callback for MessageCreate events.
+		session.AddHandler(b.handleMessage)
 	}
 
 	// Wait here until CTRL-C or other term signal is received.
@@ -80,7 +124,14 @@ func (b *Bot) Run() error {
 
 	// Cleanly close down the Discord session.
 	logger.Info("Shutting down...")
-	return b.session.Close()
+	var closingError error
+	for i, session := range b.sessions {
+
+		if err := session.Close(); err != nil {
+			closingError = errors.Wrap(err, fmt.Sprintf("failed to close shard %d", i))
+		}
+	}
+	return closingError
 }
 
 // This function will be called (due to AddHandler above) when the bot receives
@@ -93,7 +144,7 @@ func (b *Bot) ready(s *discordgo.Session, event *discordgo.Ready) {
 		zap.L().Error("error setting bot playing status", zap.Error(err))
 	}
 
-	guilds, err := b.session.UserGuilds(0, "", "")
+	guilds, err := s.UserGuilds(0, "", "")
 	if err != nil {
 		zap.L().Error("error getting guild counts", zap.Error(err))
 		return
@@ -215,7 +266,7 @@ func (b *Bot) handleMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 			}
 			if !isAdmin {
 				logger.Info(
-					m.Author.String()+"user doesn't have admin role",
+					m.Author.String()+" user doesn't have admin role",
 					zap.String("command", cleanedMsg),
 					zap.String("user", m.Author.String()),
 				)
@@ -324,4 +375,9 @@ func userIsAdmin(
 		}
 	}
 	return false, nil
+}
+
+func sendEmbed(s *discordgo.Session, channelID string, embed *discordgo.MessageEmbed) error {
+	_, err := s.ChannelMessageSendEmbed(channelID, embed)
+	return err
 }

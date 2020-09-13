@@ -2,13 +2,13 @@ package repository
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"strings"
 	"time"
 
+	"github.com/pkg/errors"
 	"github.com/jinzhu/gorm"
 	"github.com/patrickmn/go-cache"
 )

@@ -158,8 +158,7 @@ func (b *Bot) handlePokedexCmd(
 		Inline: false,
 	})
 
-	_, err = s.ChannelMessageSendEmbed(m.ChannelID, embed)
-	return err
+	return sendEmbed(s, m.ChannelID, embed)
 }
 
 func createJoinedPkmInfo(prefix string, info []string) string {

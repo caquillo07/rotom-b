@@ -28,8 +28,7 @@ func (b *Bot) handleDenCmd(
 		if err != nil {
 			return err
 		}
-		_, err = s.ChannelMessageSendEmbed(m.ChannelID, embed)
-		return err
+		return sendEmbed(s, m.ChannelID, embed)
 	}
 
 	// if the name and shininess were not parsed properly, lets assume it
@@ -44,8 +43,7 @@ func (b *Bot) handleDenCmd(
 		return err
 	}
 
-	_, err = s.ChannelMessageSendEmbed(m.ChannelID, embed)
-	return err
+	return sendEmbed(s, m.ChannelID, embed)
 }
 
 func (b *Bot) getDensFromPokemon(pkmnName, form string, isShiny bool) (*discordgo.MessageEmbed, error) {
