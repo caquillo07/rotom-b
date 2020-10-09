@@ -180,7 +180,7 @@ The confidence level will display when this calculations fall under the rounding
 	}
 
 	// Alias for pre-established commands
-	b.commands["commands"] = &command{alias: "commands"}
+	b.commands["commands"] = &command{alias: "help"}
 	b.commands["pokemon"] = &command{alias: "pokedex"}
 	b.commands["dex"] = &command{alias: "pokedex"}
 	b.commands["info"] = &command{alias: "pokedex"}
