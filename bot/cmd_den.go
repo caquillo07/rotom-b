@@ -344,7 +344,7 @@ func (b *Bot) getDenFromNumber(denNumber string) (*discordgo.MessageEmbed, error
 	)
 	embed.Image = &discordgo.MessageEmbedImage{
 		URL: fmt.Sprintf(
-			"https://caquillo07.github.io/data/dens/den_%s.png",
+			"https://raw.githubusercontent.com/caquillo07/rotom-b-data/master/dens/den_%s.png",
 			strings.ToLower(strings.ReplaceAll(den.Number, " ", "")),
 		),
 	}
