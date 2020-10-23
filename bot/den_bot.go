@@ -346,6 +346,18 @@ func (b *Bot) getOrCreateGuildSettings(guild *discordgo.Guild) (*repository.Guil
 	}
 
 	if gc != nil {
+		// TODO: todo so its highlighted, remove this once this is no longer a
+		//  thing. If the name is <replace>, replace it with the real name.
+		//  Since this is a temp action, ignore the error, just log it
+		gc.Name = guild.Name
+		if err := b.repository.UpdateGuildSettings(gc); err != nil {
+			zap.L().Error(
+				"failed to update guild name",
+				zap.Error(err),
+				zap.String("guild_id", guild.ID),
+				zap.String("guild_name", guild.Name),
+			)
+		}
 		return gc, nil
 	}
 
