@@ -174,7 +174,7 @@ The confidence level will display when this calculations fall under the rounding
 			return b.addCmdPrefix("{{p}}settings", prefix)
 		},
 		example: func(prefix string) string {
-			return b.addCmdPrefix("{{p}}settings prefix %", prefix)
+			return b.addCmdPrefix("{{p}}settings prefix %, {{p}}settings listen #channel", prefix)
 		},
 		adminOnly: true,
 	}
