@@ -149,7 +149,7 @@ func getActionFromArgs(args []string) string {
 	}
 
 	c := args[1]
-	if c != actionAdd && c != actionRemove {
+	if c != actionAdd && c != actionRemove && c != actionReset {
 		return ""
 	}
 
@@ -161,6 +161,7 @@ func handleListenUpdate(s *discordgo.Session, args []string, settings *repositor
 	// if we are resetting, just empty and return early
 	if action == actionReset {
 		settings.ListeningChannels = nil
+		return nil, nil
 	}
 
 	// if we get an action but no channels
