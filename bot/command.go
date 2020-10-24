@@ -252,20 +252,10 @@ func parsePokemonCommand(command string, args []string) pokemonArg {
 
 		// now check if its a pokemon with a two-part name and its not the last
 		// element in the slice
-		cleanArg := strings.ReplaceAll(arg, "*", "")
-		if (cleanArg == "mr" || cleanArg == "mr." || cleanArg == "mime") && i != len(args)-1 {
-			secondPart := args[i+1]
-			cleanSecondPart := strings.ReplaceAll(secondPart, "*", "")
-			if strings.Contains(arg, "mr") && (cleanSecondPart == "rime" || cleanSecondPart == "mime") {
-				pkmArgs.name = "mr " + cleanSecondPart
-				pkmArgs.isShiny = strings.Contains(arg, "*") || strings.Contains(secondPart, "*")
-				skipIndex = true
-				continue
-			}
-
-			if cleanArg == "mime" && strings.Contains(cleanSecondPart, "jr") {
-				pkmArgs.name = "mime jr"
-				pkmArgs.isShiny = strings.Contains(arg, "*") || strings.Contains(secondPart, "*")
+		if i != len(args)-1 {
+			if name, shiny := handleMultiPartName(arg, args[i+1]); name != "" {
+				pkmArgs.name = name
+				pkmArgs.isShiny = shiny
 				skipIndex = true
 				continue
 			}
@@ -279,6 +269,7 @@ func parsePokemonCommand(command string, args []string) pokemonArg {
 		// pokemon has two forms, the which are 3 words long so we have to
 		// threat it a bit differently by only checking the first one, and
 		// manually adding the rest of the name.
+		cleanArg := strings.ReplaceAll(arg, "*", "")
 		if cleanArg == "urshifu" {
 
 			// first check if the form is  before the name in the command.
@@ -375,4 +366,24 @@ func parsePokemonCommand(command string, args []string) pokemonArg {
 	}
 
 	return pkmArgs
+}
+
+func handleMultiPartName(first, second string) (string, bool) {
+	cleanedFirst := strings.ReplaceAll(first, "*", "")
+	cleanedSecond := strings.ReplaceAll(second, "*", "")
+	var name string
+	shiny := strings.Contains(first, "*") || strings.Contains(second, "*")
+	switch n := cleanedFirst + " " + cleanedSecond; n {
+	case "tapu koko", "tapu lele", "tapu bulu", "tapu fini", "mr mime", "mr rime",
+		"mime jr", "type: null":
+		name = n
+	case "mime jr.", "mr. rime", "mr. mime":
+		name = strings.ReplaceAll(n, ".", "")
+	case "type null":
+		name = "type: null"
+	default:
+		// none
+	}
+
+	return name, shiny
 }
