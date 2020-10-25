@@ -215,6 +215,12 @@ func (b *Bot) handleMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
+	// If this guild has specific channels to listen on and this channel is not
+	// in it, exit.
+	if len(guildSettings.ListeningChannels) > 0 && !inListenChannels(channel.ID, guildSettings.ListeningChannels) {
+		return
+	}
+
 	// Update the requests served, so we can get new ID for the next request
 	reqID := atomic.AddUint64(&b.requestsServed, 1)
 	logger.Info(
@@ -340,6 +346,20 @@ func (b *Bot) getOrCreateGuildSettings(guild *discordgo.Guild) (*repository.Guil
 	}
 
 	if gc != nil {
+		// TODO: todo so its highlighted, remove this once this is no longer a
+		//  thing. If the name is <replace>, replace it with the real name.
+		//  Since this is a temp action, ignore the error, just log it
+		if gc.Name == "<replace>" {
+			gc.Name = guild.Name
+			if err := b.repository.UpdateGuildSettings(gc); err != nil {
+				zap.L().Error(
+					"failed to update guild name",
+					zap.Error(err),
+					zap.String("guild_id", guild.ID),
+					zap.String("guild_name", guild.Name),
+				)
+			}
+		}
 		return gc, nil
 	}
 
@@ -383,4 +403,13 @@ func userIsAdmin(
 func sendEmbed(s *discordgo.Session, channelID string, embed *discordgo.MessageEmbed) error {
 	_, err := s.ChannelMessageSendEmbed(channelID, embed)
 	return err
+}
+
+func inListenChannels(id string, s []*repository.GuildSettingChannel) bool {
+	for _, ss := range s {
+		if id == ss.ID {
+			return true
+		}
+	}
+	return false
 }

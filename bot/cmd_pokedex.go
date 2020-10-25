@@ -44,12 +44,13 @@ func (b *Bot) handlePokedexCmd(
 
 	externalPokedexLinks := fmt.Sprintf(
 		"[Bulbapedia Entry](https://bulbapedia.bulbagarden.net/wiki/%s_(Pokémon))\n",
-		strings.ToLower(urlPkmName),
+		strings.ReplaceAll(urlPkmName, " ", "_"),
 	)
+
 	if len(pkm.Dens.Shield) > 0 || len(pkm.Dens.Sword) > 0 || pkm.Generation == "SwordShield" {
 		externalPokedexLinks += fmt.Sprintf(
 			"[Serebii Sword & Shield Pokédex](https://serebii.net/pokedex-swsh/%s/)",
-			strings.ToLower(urlPkmName),
+			strings.ReplaceAll(strings.ToLower(urlPkmName), " ", ""),
 		)
 	} else {
 		externalPokedexLinks += fmt.Sprintf(
@@ -90,7 +91,7 @@ func (b *Bot) handlePokedexCmd(
 
 	embed.URL = fmt.Sprintf(
 		"https://bulbapedia.bulbagarden.net/wiki/%s_(Pokémon)",
-		strings.ToLower(urlPkmName),
+		strings.ReplaceAll(urlPkmName, " ", "_"),
 	)
 
 	embed.Fields = []*discordgo.MessageEmbedField{

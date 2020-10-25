@@ -33,6 +33,12 @@ bot:
   # This value defaults to "0" if left blank, which is the hex value of black
   # (0x000000)
   errorEmbedColor: 0xb40000
+  # color of the border on the warning embed messages sent by the bots, in hex
+  # format.
+  #
+  # This value defaults to "0" if left blank, which is the hex value of black
+  # (0x000000)
+  warningEmbedColor: 0x00FF00
 
 database:
   log: true
