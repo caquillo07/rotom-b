@@ -85,6 +85,7 @@ func (p *Pokemon) SpriteImage(shiny bool, form string) string {
 	}
 
 	cleanName := strings.ReplaceAll(p.Name, "-", "")
+	cleanName = strings.ReplaceAll(p.Name, ":", "")
 
 	// kind of hacky here, but if the pokemon is a galar one we need to
 	// remove the form from the name, else we wont get the right sprite.
@@ -94,7 +95,8 @@ func (p *Pokemon) SpriteImage(shiny bool, form string) string {
 	}
 
 	// the dumb mr mime line has special sprite names. I. hate. this.
-	if p.DexID == 439 || p.DexID == 122 || p.DexID == 866 {
+	if p.DexID == 439 || p.DexID == 122 || p.DexID == 866 || p.DexID == 785 ||
+		p.DexID == 786 || p.DexID == 787 || p.DexID == 788 || p.DexID == 772 {
 		cleanName = strings.ReplaceAll(cleanName, " ", "-")
 	}
 
