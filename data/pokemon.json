@@ -39501,5 +39501,280 @@
     "type1": "Grass",
     "type2": "Dark",
     "weight": 153.4
+  },
+  {
+    "name": "Calyrex",
+    "type1": "Psychic",
+    "type2": "Grass",
+    "generation": "SwordShield",
+    "genderRatio": "Genderless",
+    "height": 1.1,
+    "weight": 7.7,
+    "abilities": {
+      "ability1": "Unnerve",
+      "ability2": null,
+      "abilityH": null
+    },
+    "baseStats": {
+      "hp": 100,
+      "atk": 80,
+      "def": 80,
+      "spA": 80,
+      "spD": 80,
+      "spe": 80,
+      "tot": 500
+    },
+    "catchRate": 3,
+    "dens": {
+      "shield": [],
+      "sword": []
+    },
+    "dexId": 898,
+    "eggGroup1": "Undiscovered",
+    "eggGroup2": null,
+    "evolutions": [],
+    "forms": [
+      "Ice Rider",
+      "Shadow Rider"
+    ]
+  },
+  {
+    "name": "Calyrex Ice Rider",
+    "type1": "Psychic",
+    "type2": "Ice",
+    "generation": "SwordShield",
+    "genderRatio": "Genderless",
+    "height": 1.1,
+    "weight": 7.7,
+    "abilities": {
+      "ability1": "As One - Unnerve Chilling Neigh",
+      "ability2": null,
+      "abilityH": null
+    },
+    "baseStats": {
+      "hp": 100,
+      "atk": 165,
+      "def": 150,
+      "spA": 85,
+      "spD": 135,
+      "spe": 50,
+      "tot": 680
+    },
+    "catchRate": 3,
+    "dens": {
+      "shield": [],
+      "sword": []
+    },
+    "dexId": 898,
+    "eggGroup1": "Undiscovered",
+    "eggGroup2": null,
+    "evolutions": [],
+    "forms": [
+      "Ice Rider",
+      "Shadow Rider"
+    ]
+  },
+  {
+    "name": "Calyrex Shadow Rider",
+    "type1": "Psychic",
+    "type2": "Ghost",
+    "generation": "SwordShield",
+    "genderRatio": "Genderless",
+    "height": 1.1,
+    "weight": 7.7,
+    "abilities": {
+      "ability1": "As One - Unnerve Grim Neigh",
+      "ability2": null,
+      "abilityH": null
+    },
+    "baseStats": {
+      "hp": 100,
+      "atk": 85,
+      "def": 80,
+      "spA": 165,
+      "spD": 100,
+      "spe": 150,
+      "tot": 680
+    },
+    "catchRate": 3,
+    "dens": {
+      "shield": [],
+      "sword": []
+    },
+    "dexId": 898,
+    "eggGroup1": "Undiscovered",
+    "eggGroup2": null,
+    "evolutions": [],
+    "forms": [
+      "Ice Rider",
+      "Shadow Rider"
+    ]
+  },
+  {
+    "name": "Spectrier",
+    "type1": "Ghost",
+    "type2": null,
+    "generation": "SwordShield",
+    "genderRatio": "Genderless",
+    "height": 2.0,
+    "weight": 44.5,
+    "abilities": {
+      "ability1": "Grim Neigh",
+      "ability2": null,
+      "abilityH": null
+    },
+    "baseStats": {
+      "hp": 100,
+      "atk": 65,
+      "def": 60,
+      "spA": 145,
+      "spD": 80,
+      "spe": 130,
+      "tot": 580
+    },
+    "catchRate": 3,
+    "dens": {
+      "shield": [],
+      "sword": []
+    },
+    "dexId": 897,
+    "eggGroup1": "Undiscovered",
+    "eggGroup2": null,
+    "evolutions": [],
+    "forms": []
+  },
+  {
+    "name": "Glastrier",
+    "dexId": 896,
+    "type1": "Ice",
+    "type2": null,
+    "generation": "SwordShield",
+    "genderRatio": "Genderless",
+    "height": 2.2,
+    "weight": 800,
+    "abilities": {
+      "ability1": "Chilling Neigh",
+      "ability2": null,
+      "abilityH": null
+    },
+    "baseStats": {
+      "hp": 100,
+      "atk": 145,
+      "def": 130,
+      "spA": 65,
+      "spD": 110,
+      "spe": 30,
+      "tot": 580
+    },
+    "catchRate": 3,
+    "dens": {
+      "shield": [],
+      "sword": []
+    },
+    "eggGroup1": "Undiscovered",
+    "eggGroup2": null,
+    "evolutions": [],
+    "forms": []
+  },
+  {
+    "name": "Regidrago",
+    "dexId": 895,
+    "type1": "Dragon",
+    "type2": null,
+    "generation": "SwordShield",
+    "genderRatio": "Genderless",
+    "height": 2.1,
+    "weight": 200,
+    "abilities": {
+      "ability1": "Dragon's Maw",
+      "ability2": null,
+      "abilityH": null
+    },
+    "baseStats": {
+      "hp": 100,
+      "atk": 50,
+      "def": 50,
+      "spA": 100,
+      "spD": 50,
+      "spe": 80,
+      "tot": 580
+    },
+    "catchRate": 3,
+    "dens": {
+      "shield": [],
+      "sword": []
+    },
+    "eggGroup1": "Undiscovered",
+    "eggGroup2": null,
+    "evolutions": [],
+    "forms": []
+  },
+  {
+    "name": "Regieleki",
+    "dexId": 894,
+    "type1": "Electric",
+    "type2": null,
+    "generation": "SwordShield",
+    "genderRatio": "Genderless",
+    "height": 1.2,
+    "weight": 145,
+    "abilities": {
+      "ability1": "Transistor",
+      "ability2": null,
+      "abilityH": null
+    },
+    "baseStats": {
+      "hp": 80,
+      "atk": 100,
+      "def": 50,
+      "spA": 100,
+      "spD": 50,
+      "spe": 200,
+      "tot": 580
+    },
+    "catchRate": 3,
+    "dens": {
+      "shield": [],
+      "sword": []
+    },
+    "eggGroup1": "Undiscovered",
+    "eggGroup2": null,
+    "evolutions": [],
+    "forms": []
+  },
+  {
+    "name": "Galarian Slowking",
+    "dexId": 199,
+    "type1": "Poison",
+    "type2": "Psychic",
+    "generation": "SwordShield",
+    "genderRatio": "50% ⚲ : 50% ♂",
+    "height": 2.0,
+    "weight": 79.5,
+    "abilities": {
+      "ability1": "Medicine",
+      "ability2": "Own Tempo",
+      "abilityH": "Regenerator"
+    },
+    "baseStats": {
+      "hp": 95,
+      "atk": 65,
+      "def": 80,
+      "spA": 110,
+      "spD": 110,
+      "spe": 30,
+      "tot": 490
+    },
+    "catchRate": 70,
+    "dens": {
+      "shield": [],
+      "sword": []
+    },
+    "eggGroup1": "Monster",
+    "eggGroup2": "Water 1",
+    "evolutions": [],
+    "forms": [
+      "Slowking"
+    ]
   }
 ]
