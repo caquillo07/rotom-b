@@ -117,32 +117,10 @@ func (b *Bot) getDensFromPokemon(pkmnName, form string, isShiny bool) (*discordg
 		Height: 150,
 	}
 
-	// If we are dealing with Chansey or Blissey we need to treat them
-	// different, since they are in so many dens they break discord's
-	// limit on field size.
-	//
-	// Both pokemon appear in the same dens for both games, so we will
-	// treat both games as one.
-	//
-	// NOTE: if another pokemon happens to be like this, say in DLC #2,
-	// we will need to make this modular
-	if pkm.DexID == 113 || pkm.DexID == 242 {
-		embed.Fields = getDensEmbedFields("Sword & Shield", swordDensStandard, swordDensHA)
-	} else {
-		embed.Fields = []*discordgo.MessageEmbedField{
-			&discordgo.MessageEmbedField{
-				Name:   "Sword",
-				Value:  getDensText(swordDensStandard, swordDensHA),
-				Inline: false,
-			},
-			&discordgo.MessageEmbedField{
-				Name:   "Shield",
-				Value:  getDensText(shieldDensStandard, shieldDensHA),
-				Inline: false,
-			},
-		}
-	}
-
+	embed.Fields = append(embed.Fields, getDenFields("Sword", swordDensStandard)...)
+	embed.Fields = append(embed.Fields, getDenFields("Sword HA", swordDensHA)...)
+	embed.Fields = append(embed.Fields, getDenFields("Shield", shieldDensStandard)...)
+	embed.Fields = append(embed.Fields, getDenFields("Shield HA", shieldDensHA)...)
 	return embed, nil
 }
 
@@ -156,149 +134,46 @@ func isDenPokemonHA(pkmName string, gameDens []*repository.DenPokemon) bool {
 	return false
 }
 
-func getDensText(densStandard []string, densHA []string) string {
-	var txt string
-	for i := 0; i < len(densStandard); i++ {
-		den := strings.ToLower(densStandard[i])
-		txt += fmt.Sprintf(
-			"[%s](https://www.serebii.net/swordshield/maxraidbattles/den%s.shtml)",
-			den,
-			den,
-		)
-		if i != len(densStandard)-1 {
-			txt += ", "
+func getDenFields(title string, dens []string) []*discordgo.MessageEmbedField {
+	getField := func(value string, isExtra bool) *discordgo.MessageEmbedField {
+		name := title
+		if isExtra {
+			name += " (cont'd)"
+		}
+		return &discordgo.MessageEmbedField{
+			Name:   name,
+			Value:  strings.TrimSuffix(value, ", "),
+			Inline: false,
 		}
 	}
 
-	if len(densHA) > 0 {
-		txt += "\nHA: "
-		for i := 0; i < len(densHA); i++ {
-			den := strings.ToLower(densHA[i])
-			txt += fmt.Sprintf(
-				"[%s](https://www.serebii.net/swordshield/maxraidbattles/den%s.shtml)",
-				den,
-				den,
-			)
-			if i != len(densHA)-1 {
-				txt += ", "
-			}
-		}
-	}
-
-	if txt == "" {
-		txt = "N/A"
-	}
-	return txt
-}
-
-// TODO(hector): - Make this more DRY when your brain is working again
-func getDensEmbedFields(game string, densStandard []string, densHA []string) []*discordgo.MessageEmbedField {
 	fields := make([]*discordgo.MessageEmbedField, 0)
 	var text string
-	const maxDensPerField = 14
-	var densInFieldCount int
-
-	// First lets do the standard dens till we run out of space, then we will
-	// create a new field and add the rest to that
-	for i, den := range densStandard {
-		// check to make sure this wont get us out of bounds, if so add it to
-		// the fields list, and start over
-		isLastInField := densInFieldCount >= maxDensPerField
-		if isLastInField {
-			name := game
-			if len(fields) != 0 {
-				name = "(cont'd)"
-			}
-			fields = append(fields, &discordgo.MessageEmbedField{
-				Name:   name,
-				Value:  text,
-				Inline: false,
-			})
-
-			text = ""
-			densInFieldCount = 0
-		}
-
-		densInFieldCount++
-		isLastInField = densInFieldCount >= maxDensPerField // update bool flag
-		txt := fmt.Sprintf(
-			"[%s](https://www.serebii.net/swordshield/maxraidbattles/den%s.shtml)",
-			den,
-			den,
+	for i := 0; i < len(dens); i++ {
+		den := fmt.Sprintf(
+			// its ok to add the comma at the end here, it will get trimmed by
+			// the field create function
+			"[%s](https://www.serebii.net/swordshield/maxraidbattles/den%s.shtml), ",
+			dens[i],
+			dens[i],
 		)
-		if i != len(densStandard)-1 && !isLastInField {
-			txt += ", "
-		}
-		text += txt
-	}
 
-	// now lets create the field, if we added one before due to it being too
-	// big, we will add it with a (cont'd) title for contunity
-	if text != "" {
-		field := &discordgo.MessageEmbedField{
-			Name:  game,
-			Value: text,
-		}
-		if len(fields) != 0 {
-			field.Name = "(cont'd)"
-		}
-		fields = append(fields, field)
-	}
-
-	// HA is never big enough to fill and entire field (for now), and to keep
-	// things from being confusing, lets just add it to its own field.
-	if len(densHA) == 0 {
-		return fields
-	}
-
-	// reset the trackers
-	densInFieldCount = 0
-	text = ""
-	for i, den := range densHA {
-		// check to make sure this wont get us out of bounds, if so add it to
-		// the fields list, and start over
-		isLastInField := densInFieldCount >= maxDensPerField
-		if isLastInField {
-			name := "HA Dens"
-			if len(fields) == 0 {
-				name = game + "\n" + name
-			}
-			if len(fields) != 0 {
-				name = "(cont'd)"
-			}
-			fields = append(fields, &discordgo.MessageEmbedField{
-				Name:   name,
-				Value:  text,
-				Inline: false,
-			})
-
+		// if we have reached the maximum allowed characters, its time to make
+		// a new field.
+		if len(text)+len(den) >= embedFieldValueMaxCharacters {
+			fields = append(fields, getField(text, len(fields) != 0))
 			text = ""
-			densInFieldCount = 0
 		}
 
-		densInFieldCount++
-		isLastInField = densInFieldCount >= maxDensPerField // update bool flag
-		txt := fmt.Sprintf(
-			"[%s](https://www.serebii.net/swordshield/maxraidbattles/den%s.shtml)",
-			den,
-			den,
-		)
-		if i != len(densHA)-1 && !isLastInField {
-			txt += ", "
-		}
-		text += txt
+		text += den
 	}
-	if text != "" {
-		field := &discordgo.MessageEmbedField{
-			Name:  game,
-			Value: text,
-		}
-		if len(fields) != 0 {
-			field.Name = "(cont'd)"
-		}
-		fields = append(fields, field)
+	if text == "" {
+		text = "N/A"
 	}
-	return fields
+
+	// we need to make sure we add any leftovers, or the first field if we
+	// never reached the max characters, or if its just N/A
+	return append(fields, getField(text, len(fields) != 0))
 }
 
 func (b *Bot) getDenFromNumber(denNumber string) (*discordgo.MessageEmbed, error) {

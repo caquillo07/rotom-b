@@ -10,6 +10,10 @@ import (
 	"github.com/caquillo07/rotom-bot/repository"
 )
 
+const (
+	embedFieldValueMaxCharacters = 1024
+)
+
 type command struct {
 	execute  func(s *discordgo.Session, env *commandEnvironment, m *discordgo.Message) error
 	helpText string
