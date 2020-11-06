@@ -106,8 +106,7 @@ func (b *Bot) getPokemonCatchRate(
 		{
 			Name: ball.Name,
 			Value: fmt.Sprintf(
-				"%s catch rate: `%s`\n[Confidence level](%s): %s",
-				ball.Name,
+				"Catch rate: `%s`\n[Confidence level](%s): %s",
 				description,
 				catchRateConfidenceURL,
 				confidenceEmoji(lowerConfidence && highConfidence || ball.ID == "master"),
