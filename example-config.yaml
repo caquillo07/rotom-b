@@ -17,6 +17,9 @@ dbl:
 
 # bot configuration
 bot:
+  # the bot's name, this will be shown at the bottom of the footer, and anywhere
+  # the bot will be need to identified.
+  name: heyo
   # the prefix to be used for commands. This is what the bot
   # will use to filter out commands from normal messages
   prefix: "%"
@@ -39,6 +42,9 @@ bot:
   # This value defaults to "0" if left blank, which is the hex value of black
   # (0x000000)
   warningEmbedColor: 0x00FF00
+  # the image/icon to be shown at the bottom of the footer, along with the
+  # credits
+  footerIconURL: https://images-na.ssl-images-amazon.com/images/I/41x0Y9yJYKL.jpg
 
 database:
   log: true
