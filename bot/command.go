@@ -10,6 +10,10 @@ import (
 	"github.com/caquillo07/rotom-bot/repository"
 )
 
+const (
+	embedFieldValueMaxCharacters = 1024
+)
+
 type command struct {
 	execute  func(s *discordgo.Session, env *commandEnvironment, m *discordgo.Message) error
 	helpText string
@@ -202,8 +206,8 @@ func (b *Bot) newEmbed() *discordgo.MessageEmbed {
 	return &discordgo.MessageEmbed{
 		Color: b.config.Bot.EmbedColor,
 		Footer: &discordgo.MessageEmbedFooter{
-			Text:    "Rotom-B - By Hector & Milla & Droopy",
-			IconURL: "https://images-na.ssl-images-amazon.com/images/I/41x0Y9yJYKL.jpg",
+			Text:    fmt.Sprintf("%s - By Hector & Milla & Droopy", b.config.Bot.Name),
+			IconURL: b.config.Bot.FooterIconURL,
 		},
 	}
 }

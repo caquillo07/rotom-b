@@ -144,20 +144,14 @@ func (b *Bot) ready(s *discordgo.Session, event *discordgo.Ready) {
 		zap.L().Error("error setting bot playing status", zap.Error(err))
 	}
 
-	guilds, err := s.UserGuilds(0, "", "")
-	if err != nil {
-		zap.L().Error("error getting guild counts", zap.Error(err))
-		return
-	}
-	zap.L().Info("Total guilds Rotom-B is on", zap.Int("guild_count", len(guilds)))
+	guilds := len(s.State.Guilds)
+	zap.L().Info("Total guilds Rotom-B is on", zap.Int("guild_count", guilds))
 
 	if !b.config.DBL.Enable {
 		return
 	}
 
-	dbl := dblgo.NewDBLApi(b.config.DBL.Token)
-	err = dbl.PostStatsSimple(len(guilds))
-	if err != nil {
+	if err := dblgo.NewDBLApi(b.config.DBL.Token).PostStatsSimple(guilds); err != nil {
 		zap.L().Error("error posting user count to DBL", zap.Error(err))
 	}
 }

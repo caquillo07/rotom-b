@@ -26,10 +26,12 @@ type Config struct {
 	}
 
 	Bot struct {
+		Name              string
 		Prefix            string
 		EmbedColor        int
 		ErrorEmbedColor   int
 		WarningEmbedColor int
+		FooterIconURL     string
 	}
 
 	// Config provides database configuration
