@@ -19,7 +19,7 @@ dbl:
 bot:
   # the bot's name, this will be shown at the bottom of the footer, and anywhere
   # the bot will be need to identified.
-  name: heyo
+  name: Rotom-B
   # the prefix to be used for commands. This is what the bot
   # will use to filter out commands from normal messages
   prefix: "%"
