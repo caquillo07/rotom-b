@@ -70,7 +70,7 @@ func (b *Bot) Run() error {
 
 	gateway, err := mainSession.GatewayBot()
 	if err != nil {
-		return err
+		return errors.Wrap(err, "failed to create gateway")
 	}
 
 	logger.Info(

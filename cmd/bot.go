@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"log"
-
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
@@ -28,6 +26,6 @@ func runBotCommand(_ *cobra.Command, _ []string) {
 
 	b := bot.NewBot(config)
 	if err := b.Run(); err != nil {
-		log.Fatal(err)
+		logger.Fatal("failed to run the bot", zap.Error(err))
 	}
 }
