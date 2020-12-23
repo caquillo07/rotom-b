@@ -47,13 +47,13 @@ func (b *Bot) Run() error {
 	// Open connection to DB before anything else
 	db, err := repository.Open(b.config.Database)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "failed to connect to DB")
 	}
 
 	// Initialize the repo
 	repo, err := repository.NewRepository(db)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "failed to create repository")
 	}
 	b.repository = repo
 
@@ -65,12 +65,12 @@ func (b *Bot) Run() error {
 	discordToken := "Bot " + b.config.Discord.Token
 	mainSession, err := discordgo.New(discordToken)
 	if err != nil {
-		logger.Fatal("error creating Discord session", zap.Error(err))
+		return errors.Wrap(err, "error creating Discord session")
 	}
 
 	gateway, err := mainSession.GatewayBot()
 	if err != nil {
-		return err
+		return errors.Wrap(err, "failed to create gateway")
 	}
 
 	logger.Info(

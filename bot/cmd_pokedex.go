@@ -94,8 +94,12 @@ func (b *Bot) handlePokedexCmd(
 		strings.ReplaceAll(urlPkmName, " ", "_"),
 	)
 
+	types := pkm.Type1
+	if pkm.Type2 != "" {
+		types += " / " + pkm.Type2
+	}
 	embed.Fields = []*discordgo.MessageEmbedField{
-		&discordgo.MessageEmbedField{
+		{
 			Name: "Base Stats",
 			Value: fmt.Sprintf(
 				"HP: `%d`\n"+
@@ -115,20 +119,22 @@ func (b *Bot) handlePokedexCmd(
 			),
 			Inline: true,
 		},
-		&discordgo.MessageEmbedField{
+		{
 			Name:   "Abilities",
 			Value:  abilities,
 			Inline: true,
 		},
-		&discordgo.MessageEmbedField{
+		{
 			Name: "Pokémon Misc. Info",
 			Value: fmt.Sprintf(
-				"Gender Ratio: `%s`\n"+
+				"Type: `%s`\n"+
+					"Gender Ratio: `%s`\n"+
 					"Height / Weight: `%sm / %skg`\n"+
 					"Catch Rate: `%d`\n"+
 					"Generation: `%s`\n"+
 					"Egg Groups: `%s`\n"+
 					"%s",
+				types,
 				pkm.GenderRatio,
 				fmt.Sprintf("%.2f", pkm.Height),
 				fmt.Sprintf("%.2f", pkm.Weight),

@@ -292,7 +292,8 @@ func GetSpriteForm(form string) string {
 		"primal", "blade-form", "sunny", "rainy", "snowy", "sunshine",
 		"crowned", "starter", "black", "white", "f", "dusk-mane", "dawn-wings",
 		"megay", "megax", "gorging", "gulping", "dusk-form", "zen-mode",
-		"galarian-zen", "ultra", "origin-form", "dada", "ice-rider", "shadow-rider":
+		"galarian-zen", "ultra", "origin-form", "dada", "ice-rider", "shadow-rider",
+		"eternamax", "original":
 		return f
 	case "galar":
 		return "galarian"
@@ -332,7 +333,7 @@ func GetSpriteForm(form string) string {
 func spriteFileName(pkm, form string) string {
 	switch form {
 	case alolan, "crowned", "dusk", "midnight", galarian, "mega", "megay",
-		"megax", "primal", "ultra":
+		"megax", "primal", "ultra", "eternamax":
 		return fmt.Sprintf("%s-%s", form, pkm)
 	case "":
 		return pkm
