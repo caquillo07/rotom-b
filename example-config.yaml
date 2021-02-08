@@ -47,6 +47,6 @@ bot:
   footerIconURL: https://images-na.ssl-images-amazon.com/images/I/41x0Y9yJYKL.jpg
 
 database:
-  log: true
+  log: false
   driver: postgres
   url: postgresql://postgres:root@localhost:5432/rotom_b?sslmode=disable
