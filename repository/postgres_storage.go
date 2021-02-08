@@ -8,9 +8,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/jinzhu/gorm"
 	"github.com/patrickmn/go-cache"
+	"github.com/pkg/errors"
 )
 
 const (

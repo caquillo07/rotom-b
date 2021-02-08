@@ -9,6 +9,7 @@ require (
 	github.com/kubastick/dblgo v0.2.1
 	github.com/lib/pq v1.3.0
 	github.com/patrickmn/go-cache v2.1.0+incompatible
+	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v1.0.0
 	github.com/spf13/viper v1.4.0
 	go.uber.org/zap v1.15.0
