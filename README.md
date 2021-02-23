@@ -89,7 +89,6 @@ cp example-config.yaml config.yaml
 
 The Simplest way to get everything running is using `docker-compose`
 ```shell script
-# NOTE: currently unavailable, docker-compose.yaml needs updating
 docker-compose up
 ```
 

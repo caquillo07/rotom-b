@@ -18,13 +18,17 @@ RUN make linux
 
 FROM alpine:latest
 
+RUN apk update && apk add --no-cache bash
+
 WORKDIR /app
 
 COPY --from=builder /build/data ./data
 COPY --from=builder /build/den-bot-linux-amd64 den-bot
-COPY --from=builder /build/example-config.yaml config.yaml
+COPY --from=builder /build/Start.sh Start.sh
+COPY --from=builder /build/migrations ./migrations
 
-RUN chmod +x den-bot
+
+RUN chmod +x den-bot Start.sh 
 
 #Command to run the executable
-CMD [ "./den-bot", "bot" ]
+CMD [ "./Start.sh" ]
