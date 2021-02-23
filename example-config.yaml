@@ -49,4 +49,4 @@ bot:
 database:
   log: true
   driver: postgres
-  url: postgresql://postgres:root@localhost:5432/rotom_b?sslmode=disable
+  url: postgresql://postgres:root@db:5432/rotom_b?sslmode=disable

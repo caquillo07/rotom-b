@@ -5,18 +5,23 @@ version: "3"
 services:
   db:
     image: postgres:12.3
+    ports:
+        - "5432:5432"
+    networks:
+      - bot_worker 
     volumes:
       - db-data:/var/lib/postgresql/data
-    networks:
-      - bot_worker
     environment:
-      POSTGRES_DB: postgres
+      POSTGRES_DB: rotom_b
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: root
   rotomb:
     build: .
-    networks:
+    restart: on-failure:5
+    networks: 
       - bot_worker
+    volumes:
+      - ./config.yaml:/app/config.yaml
     depends_on:
       - db
 
