@@ -24,11 +24,11 @@ WORKDIR /app
 
 COPY --from=builder /build/data ./data
 COPY --from=builder /build/den-bot-linux-amd64 den-bot
-COPY --from=builder /build/Start.sh Start.sh
+COPY --from=builder /build/start.sh start.sh
 COPY --from=builder /build/migrations ./migrations
 
 
-RUN chmod +x den-bot Start.sh 
+RUN chmod +x den-bot start.sh 
 
 #Command to run the executable
-CMD [ "./Start.sh" ]
+CMD [ "./start.sh" ]
