@@ -20,10 +20,32 @@ Rotom-B is a rewrite of the popular [Alcremie-B](https://github.com/RaphGG/den-b
 We loved Alcremie-B! Unfortunately the maintainer was unable to keep maintaining the bot, so we decided it would be a fun project to rewrite it, and add some cool features along the way.
 This is not meant to be competition, so please all credits goes to the original creator [RaphGG](https://github.com/RaphGG) for the idea. 
 
+## Privacy Policy & Questions
+We built this app so we can share our love for the games with the community, therefor no personal data is tracked,
+stored, or otherwise required to use this bot. The bot does contain a database it uses to store the guild's specific
+settings.
+
+### What is stored in the bot's database?
+- The structure of each table can be found in the `migrations/` folder direction, inside any file ending in `up.sql`
+- The bot stores the following data for the following reasons:
+  - The server's name for customized messages
+  - The server's ID for identifying which settings belong to what guild
+  - channels and roles the bot will obey to
+  - ID's of the users who have admin access to the bot
+- The bot does not, and will never store user's messages, identifying information (such as names, emails, etc) as they are not required for operations
+
+### How they can contact you for any questions or concerns?
+- You can join us over the [development and support server](https://discord.gg/Qp3ACMadSn), where a maintainer will be happy to help!
+- You can also submit an new issue to this repo, where one of the maintainers will also be able to help.
+
+### How can I request my server is removed from the database?
+- If you are using the bot hosted by us, you can contact us via any of the methods mentioned before, and will happily remove your guild's record from the database.
+  - In the future, this will be built into the bot as a command
+
 ## Features
 - Complete Max Raid Dens information, including up to date Isle of Armor DLC. 
 - Easily accessible Pokémon data, like stats, abilities, den locations, pokédex entries, etc. 
-- Catch rate & pokéball stats calculator based on Bulbapedia.
+- Catch rate & Pokéball stats calculator based on Bulbapedia.
 - Sprites for all Pokémon, including forms and shiny versions. 
 
 ## Commands
